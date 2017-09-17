@@ -1,12 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const store = require('./store');
-const {mineBlock} = require('./util/block');
+const {mineBlock} = require('./lib/block');
 const config = require('./config');
 const co = require('co');
 
 const app = express();
 app.use(bodyParser.json());
+
+app.get('/status', (req, res) => res.send(JSON.stringify(store)));
 
 app.get('/chain', (req, res) => res.send(JSON.stringify(store.chain)));
 

@@ -1,13 +1,17 @@
-const {isChainValid} = require('./util/chain');
-const {isDataValid, isBlockValid, makeGenesisBlock} = require('./util/block');
-const {generateKeyPair} = require('./util/wallet');
+const {BlockError, TransactionError} = require('./errors');
+const {isChainValid} = require('./lib/chain');
+const {checkBlock, makeGenesisBlock} = require('./lib/block');
+const {checkTransaction} = require('./lib/transaction');
+const {generateKeyPair} = require('./lib/wallet');
 
 const store = {
-  difficulty: 10000, // The less value the bigger difficulty
+  difficulty: 100000, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
 
   mempool: [], // This is pending transactions that will be added to the next block
+
+  unspent: [], // This is all unspent transactions to calculate wallet balance, validate new transactions
 
   peers: [], // List of peers ['ip:port']
 
@@ -17,16 +21,16 @@ const store = {
    * Getters
    */
 
-  lastBlock() {
+  lastBlock () {
     return this.chain[this.chain.length - 1];
   },
 
-  blocksAfter(index) {
+  blocksAfter (index) {
     if (index >= this.chain.length) return [];
     return this.chain.slice(index);
   },
 
-  isChainValid() {
+  isChainValid () {
     return isChainValid(this.chain, this.difficulty);
   },
 
@@ -34,15 +38,57 @@ const store = {
    * Actions
    */
 
-  addBlock(block) {
-    if (!isDataValid(block)) throw Error('Cannot add block with invalid data');
-    if (!isBlockValid(this.lastBlock(), block, this.difficulty)) throw Error('Cannot add invalid block');
-
-    this.chain.push(block);
-    console.log('Added block to the chain ', block);
+  addBlock (block) {
+    try {
+      checkBlock(this.lastBlock(), block, this.difficulty);
+      this.chain.push(block);
+      this.cleanTransactions(block.transactions);
+      this.updateUnspent(block);
+      console.log('Added block to the chain ', block);
+    } catch (error) {
+      if (! error instanceof BlockError && ! error instanceof TransactionError) throw error;
+      console.error(error);
+    }
   },
 
-  updateChain(newChain) {
+  addTransaction (transaction) {
+    try {
+      checkTransaction(transaction);
+      this.mempool.push(transaction);
+      console.log('Added transaction to mempool ', transaction);
+    } catch (error) {
+      if (error instanceof TransactionError) throw error;
+      console.error(error);
+    }
+  },
+
+  cleanTransactions (transactions) {
+    transactions.forEach(tx => {
+      let index = this.mempool.findIndex(t => t.id === tx.id);
+      if (index !== -1) this.mempool.splice(index, 1);
+    });
+  },
+
+  updateUnspent (block) {
+    // Find all inputs with their tx ids
+    const inputs = block.transactions.reduce((inputs, tx) =>
+      inputs.concat(tx.inputs.map(i => Object.assign({}, i, {tx: tx.id}))), []);
+
+    // Remove inputs from unspent
+    inputs.forEach(inp => {
+      let index = this.unspent.findIndex(t => t.tx === inp.tx);
+      if (index !== -1) this.unspent.splice(index, 1);
+    });
+
+    // Find all outputs with ther tx ids
+    const outputs = block.transactions.reduce((outputs, tx) =>
+      outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), []);
+
+    // Add to unspent
+    this.unspent = this.unspent.concat(outputs);
+  },
+
+  updateChain (newChain) {
     if (newChain.length > this.chain.length && isChainValid(newChain, this.difficulty)) {
       this.chain = newChain;
       return true;
@@ -51,7 +97,7 @@ const store = {
     return false;
   },
 
-  addPeer(peer) {
+  addPeer (peer) {
     this.peers.push(peer);
   },
 };

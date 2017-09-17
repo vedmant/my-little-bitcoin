@@ -1,7 +1,8 @@
+const {BlockError} = require('../errors');
 const CryptoJS = require('crypto-js');
 const Joi = require('joi');
 const {spawn} = require('threads');
-const {areTransactionsValid} = require('./transaction');
+const {checkTransactions} = require('./transaction');
 
 const blockSchema = Joi.object().keys({
   index: Joi.number(),
@@ -16,20 +17,14 @@ function isDataValid(block) {
   return Joi.validate(block, blockSchema);
 }
 
-function isBlockValid(previousBlock, block, difficulty) {
+function checkBlock(previousBlock, block, difficulty) {
+  if (! isDataValid(block)) throw new BlockError('Invalid block data');
   const blockDifficulty = getDifficulty(block.hash);
-  try {
-    if (previousBlock.index + 1 !== block.index) throw Error('Invalid block index');
-    if (previousBlock.hash !== block.prevHash) throw Error('Invalid block prevhash');
-    if (calculateHash(block) !== block.hash) throw Error('Invalid block hash');
-    if (blockDifficulty > difficulty) throw Error('Invalid block difficulty');
-    if (!areTransactionsValid(block.transactions)) throw Error('Invalid block transactions');
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-
-  return true;
+  if (previousBlock.index + 1 !== block.index) throw new BlockError('Invalid block index');
+  if (previousBlock.hash !== block.prevHash) throw new BlockError('Invalid block prevhash');
+  if (calculateHash(block) !== block.hash) throw new BlockError('Invalid block hash');
+  if (blockDifficulty > difficulty) throw new BlockError('Invalid block difficulty');
+  checkTransactions(block.transactions);
 }
 
 function calculateHash({index, prevHash, timestamp, transactions, nonce}) {
@@ -53,7 +48,7 @@ function getDifficulty(hash) {
   return parseInt(hash.substring(0, 8), 16);
 }
 
-function mineBlock(transactions, lastBlock, difficulty = 4) {
+function mineBlock(transactions, lastBlock, difficulty) {
   const block = {
     index: lastBlock.index + 1,
     prevHash: lastBlock.hash,
@@ -78,4 +73,4 @@ function mineBlock(transactions, lastBlock, difficulty = 4) {
     .promise();
 }
 
-module.exports = {blockSchema, isDataValid, isBlockValid, calculateHash, makeGenesisBlock, getDifficulty, mineBlock};
+module.exports = {checkBlock, calculateHash, makeGenesisBlock, getDifficulty, mineBlock};
