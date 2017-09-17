@@ -1,9 +1,9 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import store from './store'
-import {mineBlock} from './util/block'
-import config from './config'
-import co from 'co';
+const express = require('express');
+const bodyParser = require('body-parser');
+const store = require('./store');
+const {mineBlock} = require('./util/block');
+const config = require('./config');
+const co = require('co');
 
 const app = express();
 app.use(bodyParser.json());
@@ -27,4 +27,4 @@ app.post('/add-peer', (req, res) => {
 
 app.listen(config.http_port, () => console.log('Listening http on port: ' + config.http_port));
 
-export default app;
+module.exports = app;

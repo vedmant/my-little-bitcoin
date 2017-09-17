@@ -1,7 +1,7 @@
-import {makeGenesisBlock, isBlockValid, isDataValid} from './block';
-import fs from 'fs';
+const {makeGenesisBlock, isBlockValid, isDataValid} = require('./block');
+const fs = require('fs');
 
-export function loadChain () {
+function loadChain () {
     if (! fs.existsSync('chain.json')) {
         return [makeGenesisBlock()];
     }
@@ -9,11 +9,11 @@ export function loadChain () {
     return JSON.parse(fs.readFileSync('chain.json'));
 }
 
-export function saveChain (chain) {
+function saveChain (chain) {
     fs.writeFileSync('chain.json', JSON.stringify(chain));
 }
 
-export function isChainValid (chain, difficulty) {
+function isChainValid (chain, difficulty) {
     for (let i = 1; i < chain.length; i++) {
         if (! isBlockValid(chain[i - 1], chain[i], difficulty)) {
             return false;
@@ -22,3 +22,5 @@ export function isChainValid (chain, difficulty) {
 
     return true;
 }
+
+module.exports = {loadChain, saveChain, isChainValid};

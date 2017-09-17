@@ -4,16 +4,13 @@
   "description": "Simple Bitcoin like implementation",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.js --exec babel-node --presets es2015,stage-2",
+    "start": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vedmant",
   "license": "MIT",
   "dependencies": {
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1",
     "body-parser": "^1.18.1",
-    "check-types": "^7.3.0",
     "co": "^4.6.0",
     "crypto-js": "^3.1.9-1",
     "express": "^4.15.4",
@@ -21,7 +18,6 @@
     "lodash": "^4.17.4",
     "threads": "^0.8.1",
     "vue": "^2.4.4",
-    "webworker-threads": "^0.7.13",
     "ws": "^3.2.0"
   },
   "devDependencies": {

@@ -1,8 +1,8 @@
-import CryptoJS from 'crypto-js';
-import Joi from 'joi';
-import {spawn} from 'threads';
+const CryptoJS = require('crypto-js');
+const Joi = require('joi');
+const {spawn} = require('threads');
 
-export function isDataValid(block) {
+function isDataValid (block) {
     return Joi.validate(block, Joi.object().keys({
         index: Joi.number(),
         prevHash: Joi.string(),
@@ -13,7 +13,7 @@ export function isDataValid(block) {
     }));
 }
 
-export function isBlockValid (previousBlock, block, difficulty) {
+function isBlockValid (previousBlock, block, difficulty) {
     if (previousBlock.index + 1 !== block.index) {
         console.log('Invalid index');
         return false;
@@ -31,11 +31,11 @@ export function isBlockValid (previousBlock, block, difficulty) {
     return true;
 }
 
-export function calculateHash ({index, prevHash, timestamp, transactions, nonce}) {
+function calculateHash ({index, prevHash, timestamp, transactions, nonce}) {
     return CryptoJS.SHA256(JSON.stringify({index, prevHash, timestamp, transactions, nonce})).toString();
 }
 
-export function makeGenesisBlock () {
+function makeGenesisBlock () {
     const block = {
         index: 0,
         prevHash: '0',
@@ -48,7 +48,7 @@ export function makeGenesisBlock () {
     return block;
 }
 
-export function mineBlock (transactions, lastBlock, difficulty = 4) {
+function mineBlock (transactions, lastBlock, difficulty = 4) {
     const block = {
         index: lastBlock.index + 1,
         prevHash: lastBlock.hash,
@@ -59,20 +59,19 @@ export function mineBlock (transactions, lastBlock, difficulty = 4) {
     block.hash = calculateHash(block);
 
     // Use separate thread to not to block main thread
-    return spawn(function ({block, difficulty}, done, progress) {
-        const CryptoJS = require('crypto-js');
-        function calculateHash ({index, prevHash, timestamp, transactions, nonce}) {
-            return CryptoJS.SHA256(JSON.stringify({index, prevHash, timestamp, transactions, nonce})).toString();
-        }
+    return spawn(function ({block, difficulty, __dirname}, done, progress) {
+        const util = require(__dirname + '/block');
         const zeros = Array(difficulty + 1).join('0');
         while (block.hash.substring(0, difficulty) !== zeros) {
             block.nonce++;
-            block.hash = calculateHash(block);
+            block.hash = util.calculateHash(block);
             if (block.nonce % 100000 === 0) progress('100K hashes');
         }
         done(block);
       })
-        .send({block, difficulty})
+        .send({block, difficulty, __dirname})
         .on('progress', progress => console.log(progress))
         .promise();
 }
+
+module.exports = {isDataValid, isBlockValid, calculateHash, makeGenesisBlock, mineBlock};

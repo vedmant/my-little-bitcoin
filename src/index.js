@@ -1,7 +1,7 @@
-import store from './store';
-import {makeBlock, mineBlock} from './util/block';
-import app from './server';
-import co from 'co';
+const store = require('./store');
+const {makeBlock, mineBlock} = require('./util/block');
+const app = require('./server');
+const co = require('co');
 
 co(function* () {
     store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
