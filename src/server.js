@@ -13,18 +13,20 @@ app.get('/chain', (req, res) => res.send(JSON.stringify(store.chain)));
 app.get('/blocks-after/:index', (req, res) => res.send(JSON.stringify(store.blocksAfter(req.params.index))));
 
 app.get('/mine-block', (req, res) => {
-    co(function* () {
-        store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
-    }).then(() => {res.send('Block mined')});
+  co(function* () {
+    store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
+  }).then(() => {
+    res.send('Block mined');
+  });
 });
 
 app.get('/peers', (req, res) => {
-    res.send(store.peers);
+  res.send(store.peers);
 });
 
 app.post('/add-peer', (req, res) => {
-    store.addPeer(req.body.peer);
-    res.send();
+  store.addPeer(req.body.peer);
+  res.send();
 });
 
 app.listen(config.httpPort, () => console.log('Listening http on port: ' + config.httpPort));

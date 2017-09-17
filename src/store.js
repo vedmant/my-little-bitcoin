@@ -1,51 +1,59 @@
-const {loadChain, saveChain, isChainValid} = require('./util/chain');
+const {isChainValid} = require('./util/chain');
 const {isDataValid, isBlockValid, makeGenesisBlock} = require('./util/block');
 const {generateKeyPair} = require('./util/wallet');
 
 const store = {
-    difficulty: 10000, // The less value the bigger difficulty
+  difficulty: 10000, // The less value the bigger difficulty
 
-    chain: [makeGenesisBlock()],
+  chain: [makeGenesisBlock()],
 
-    mempool: [],
+  mempool: [], // This is pending transactions that will be added to the next block
 
-    peers: [],
+  peers: [], // List of peers ['ip:port']
 
-    wallet: generateKeyPair(),
+  wallet: generateKeyPair(),
 
-    lastBlock () {
-        return this.chain[this.chain.length - 1];
-    },
+  /*
+   * Getters
+   */
 
-    blocksAfter (index) {
-        if (index >= this.chain.length) return [];
-        return this.chain.slice(index);
-    },
+  lastBlock() {
+    return this.chain[this.chain.length - 1];
+  },
 
-    addBlock (block) {
-        if (! isDataValid(block)) throw Error('Cannot add block with invalid data');
-        if (! isBlockValid(this.lastBlock(), block, this.difficulty)) throw Error('Cannot add invalid block');
+  blocksAfter(index) {
+    if (index >= this.chain.length) return [];
+    return this.chain.slice(index);
+  },
 
-        this.chain.push(block);
-        console.log('Added block to the chain ', block);
-    },
+  isChainValid() {
+    return isChainValid(this.chain, this.difficulty);
+  },
 
-    isChainValid () {
-        return isChainValid(this.chain, this.difficulty);
-    },
+  /*
+   * Actions
+   */
 
-    updateChain (newChain) {
-        if (newChain.length > this.chain.length && isChainValid(newChain, this.difficulty)) {
-            this.chain = newChain;
-            return true;
-        }
+  addBlock(block) {
+    if (!isDataValid(block)) throw Error('Cannot add block with invalid data');
+    if (!isBlockValid(this.lastBlock(), block, this.difficulty)) throw Error('Cannot add invalid block');
 
-        return false;
-    },
+    this.chain.push(block);
+    console.log('Added block to the chain ', block);
+  },
 
-    addPeer (peer) {
-        this.peers.push(peer);
-    },
-}
+  updateChain(newChain) {
+    if (newChain.length > this.chain.length && isChainValid(newChain, this.difficulty)) {
+      this.chain = newChain;
+      return true;
+    }
+
+    return false;
+  },
+
+  addPeer(peer) {
+    this.peers.push(peer);
+  },
+};
 
 module.exports = store;

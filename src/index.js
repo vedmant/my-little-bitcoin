@@ -1,10 +1,10 @@
 const store = require('./store');
-const {makeBlock, mineBlock} = require('./util/block');
-const app = require('./server');
+const {mineBlock} = require('./util/block');
 const co = require('co');
+require('./server');
 
 co(function* () {
-    while(true) {
-        store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
-    }
+  while (true) {
+    store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
+  }
 });
