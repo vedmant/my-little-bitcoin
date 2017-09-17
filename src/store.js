@@ -1,14 +1,17 @@
 const {loadChain, saveChain, isChainValid} = require('./util/chain');
-const {isDataValid, isBlockValid} = require('./util/block');
+const {isDataValid, isBlockValid, makeGenesisBlock} = require('./util/block');
+const {generateKeyPair} = require('./util/wallet');
 
 const store = {
     difficulty: 10000, // The less value the bigger difficulty
 
-    chain: loadChain(),
+    chain: [makeGenesisBlock()],
 
-    mempool: [{hash: 123, from: 123, to: 123, amount: 1}],
+    mempool: [],
 
     peers: [],
+
+    wallet: generateKeyPair(),
 
     lastBlock () {
         return this.chain[this.chain.length - 1];
@@ -44,16 +47,5 @@ const store = {
         this.peers.push(peer);
     },
 }
-
-// process.stdin.resume(); // so the program will not close instantly
-// function exitHandler(options, err) {
-//     saveChain(store.chain);
-//     console.log('Saving Chain');
-//     if (err) console.error(err.stack);
-//     process.exit();
-// }
-// // process.on('exit', exitHandler.bind(null)); //do something when app is closing
-// process.on('SIGINT', exitHandler.bind(null)); // catches ctrl+c event
-// process.on('uncaughtException', exitHandler.bind(null)); // catches uncaught exceptions
 
 module.exports = store;

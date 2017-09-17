@@ -1,6 +1,7 @@
 const CryptoJS = require('crypto-js');
 const Joi = require('joi');
 const {spawn} = require('threads');
+const {areTransactionsValid} = require('./transaction');
 
 const blockSchema = Joi.object().keys({
     index: Joi.number(),
@@ -17,17 +18,14 @@ function isDataValid (block) {
 
 function isBlockValid (previousBlock, block, difficulty) {
     const blockDifficulty = getDifficulty(block.hash);
-    if (previousBlock.index + 1 !== block.index) {
-        console.log('Invalid index');
-        return false;
-    } else if (previousBlock.hash !== block.prevHash) {
-        console.log('Invalid prevhash');
-        return false;
-    } else if (calculateHash(block) !== block.hash) {
-        console.log('Invalid hash: ' + calculateHash(block) + ' ' + block.hash);
-        return false;
-    } else if (blockDifficulty > difficulty) {
-        console.log('Invalid hash difficulty, must be: ' + difficulty + ', but has: ' + blockDifficulty);
+    try {
+        if (previousBlock.index + 1 !== block.index) throw Error('Invalid block index');
+        if (previousBlock.hash !== block.prevHash) throw Error('Invalid block prevhash');
+        if (calculateHash(block) !== block.hash) throw Error('Invalid block hash');
+        if (blockDifficulty > difficulty) throw Error('Invalid block difficulty');
+        if (! areTransactionsValid(block.transactions)) throw Error('Invalid block transactions');
+    } catch (error) {
+        console.error(error);
         return false;
     }
 

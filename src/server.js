@@ -27,6 +27,6 @@ app.post('/add-peer', (req, res) => {
     res.send();
 });
 
-app.listen(config.http_port, () => console.log('Listening http on port: ' + config.http_port));
+app.listen(config.httpPort, () => console.log('Listening http on port: ' + config.httpPort));
 
 module.exports = app;

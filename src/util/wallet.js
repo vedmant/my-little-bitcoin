@@ -1,5 +1,6 @@
+const fs = require('fs');
 const crypto = require('crypto');
-const elliptic = require('elliptic')
+const elliptic = require('elliptic');
 const EdDSA = elliptic.eddsa;
 const ec = new EdDSA('ed25519');
 
