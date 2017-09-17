@@ -10,6 +10,8 @@ app.use(bodyParser.json());
 
 app.get('/chain', (req, res) => res.send(JSON.stringify(store.chain)));
 
+app.get('/blocks-after/:index', (req, res) => res.send(JSON.stringify(store.blocksAfter(req.params.index))));
+
 app.get('/mine-block', (req, res) => {
     co(function* () {
         store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
