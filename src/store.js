@@ -88,6 +88,14 @@ const store = {
     this.unspent = this.unspent.concat(outputs);
   },
 
+  getUnspentForAddress (address) {
+    return this.unspent.filter(u => u.address === address);
+  },
+
+  getBalanceForAddress (address) {
+    return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0);
+  },
+
   updateChain (newChain) {
     if (newChain.length > this.chain.length && isChainValid(newChain, this.difficulty)) {
       this.chain = newChain;
