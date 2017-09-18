@@ -114,7 +114,8 @@ function mineBlock(transactions, lastBlock, difficulty, address) {
     .on('progress', progress => console.log(progress));
 
   // (to test) If other process found the same block faster, kill current one
-  bus.on('block-added', b => {if (b.index === block.index) thread.kill()});
+  // TODO: resolve promise, or throw error to let it mine next block
+  // bus.on('block-added', b => {if (b.index === block.index) thread.kill()});
   bus.on('mine-stop', b => thread.kill());
 
   return thread.promise();
