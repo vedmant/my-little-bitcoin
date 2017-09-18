@@ -60,7 +60,7 @@ function makeGenesisBlock() {
   const block = {
     index: 0,
     prevHash: '0',
-    timestamp: Math.floor(new Date().getTime() / 1000),
+    timestamp: '1505759228',
     transactions: [],
     nonce: 0,
   };

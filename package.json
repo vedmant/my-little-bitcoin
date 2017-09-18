@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.js",
+    "start2": "cross-env HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 nodemon src/index.js",
+    "start3": "cross-env HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6001,ws://localhost:6002 nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vedmant",
@@ -12,6 +14,7 @@
   "dependencies": {
     "body-parser": "^1.18.1",
     "co": "^4.6.0",
+    "cross-env": "^5.0.5",
     "crypto": "^1.0.1",
     "crypto-js": "^3.1.9-1",
     "elliptic": "^6.4.0",

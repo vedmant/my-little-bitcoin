@@ -1,18 +1,19 @@
 const {BlockError, TransactionError} = require('./errors');
 const bus = require('./bus');
+const config = require('./config');
 const {isChainValid} = require('./lib/chain');
 const {checkBlock, makeGenesisBlock} = require('./lib/block');
 const {checkTransaction, buildTransaction} = require('./lib/transaction');
 const {generateKeyPair} = require('./lib/wallet');
 
 const store = {
-  difficulty: Number.MAX_SAFE_INTEGER,// 100000, // The less value the bigger difficulty
+  difficulty: 100000, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
 
   mempool: [], // This is pending transactions that will be added to the next block
 
-  peers: [], // List of peers ['ip:port']
+  peers: config.initialPeers, // List of peers ['ip:port']
 
   wallet: generateKeyPair(),
 
@@ -72,16 +73,19 @@ const store = {
       this.cleanMempool(block.transactions); // Clean mempool
       bus.emit('block-added', block);
       console.log('Added block to the chain ', block);
+      return block;
     } catch (e) {
       if (! e instanceof BlockError && ! e instanceof TransactionError) throw e;
       console.error(e);
+      return e.message;
     }
   },
 
-  addTransaction (transaction) {
+  addTransaction (transaction, emit = true) {
     checkTransaction(transaction, this.getUnspent(true));
     // TODO: check if transaction or any intputs are not in mempool already
     this.mempool.push(transaction);
+    if (emit) bus.emit('transaction-added', transaction);
     console.log('Added transaction to mempool ', transaction);
   },
 
