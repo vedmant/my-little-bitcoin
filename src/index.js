@@ -1,13 +1,9 @@
-const store = require('./store');
-const {mineBlock} = require('./lib/block');
-const {createRewardTransaction} = require('./lib/transaction');
 const co = require('co');
+const {mineBlock} = require('./lib/block');
+const store = require('./store');
+
 require('./server');
 
 co(function* () {
-  while (true) {
-    store.addTransaction(createRewardTransaction(store.wallet));
-    store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty));
-    console.log('My balance:' + store.getBalanceForAddress(store.wallet.public));
-  }
+  store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public));
 }).catch(e => console.log(e));

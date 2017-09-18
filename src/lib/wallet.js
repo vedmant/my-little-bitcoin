@@ -20,4 +20,5 @@ function verifySignature(publicKey, signature, hash) {
   return ec.keyFromPublic(publicKey, 'hex').verify(hash, signature);
 }
 
+
 module.exports = {generateKeyPair, signHash, verifySignature};

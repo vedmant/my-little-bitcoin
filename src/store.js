@@ -1,17 +1,16 @@
 const {BlockError, TransactionError} = require('./errors');
+const bus = require('./bus');
 const {isChainValid} = require('./lib/chain');
 const {checkBlock, makeGenesisBlock} = require('./lib/block');
-const {checkTransaction} = require('./lib/transaction');
+const {checkTransaction, buildTransaction} = require('./lib/transaction');
 const {generateKeyPair} = require('./lib/wallet');
 
 const store = {
-  difficulty: 100000, // The less value the bigger difficulty
+  difficulty: Number.MAX_SAFE_INTEGER,// 100000, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
 
   mempool: [], // This is pending transactions that will be added to the next block
-
-  unspent: [], // This is all unspent transactions to calculate wallet balance, validate new transactions
 
   peers: [], // List of peers ['ip:port']
 
@@ -34,66 +33,63 @@ const store = {
     return isChainValid(this.chain, this.difficulty);
   },
 
+  getUnspent (withMempool = false) {
+    let transactions = this.chain.reduce((transactions, block) => transactions.concat(block.transactions), []);
+    if (withMempool) transactions = transactions.concat(this.mempool);
+    // Find all inputs with their tx ids
+    const inputs = transactions.reduce((inputs, tx) => inputs.concat(tx.inputs), []);
+
+    // Find all outputs with their tx ids
+    const outputs = transactions.reduce((outputs, tx) =>
+      outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), []);
+
+    const unspent = outputs.filter(output =>
+      typeof inputs.find(input => input.tx === output.tx && input.index === output.index && input.amount === output.amount) === 'undefined');
+
+    return unspent;
+  },
+
+  getUnspentForAddress (address) {
+    return this.getUnspent(true).filter(u => u.address === address);
+  },
+
+  getBalanceForAddress (address) {
+    return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0);
+  },
+
+  getBalance () {
+    return this.getBalanceForAddress(this.wallet.public);
+  },
+
   /*
    * Actions
    */
 
   addBlock (block) {
     try {
-      checkBlock(this.lastBlock(), block, this.difficulty);
-      this.chain.push(block);
-      this.cleanTransactions(block.transactions);
-      this.updateUnspent(block);
+      checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent());
+      this.chain.push(block); // Push block to the chain
+      this.cleanMempool(block.transactions); // Clean mempool
+      bus.emit('block-added', block);
       console.log('Added block to the chain ', block);
-    } catch (error) {
-      if (! error instanceof BlockError && ! error instanceof TransactionError) throw error;
-      console.error(error);
+    } catch (e) {
+      if (! e instanceof BlockError && ! e instanceof TransactionError) throw e;
+      console.error(e);
     }
   },
 
   addTransaction (transaction) {
-    try {
-      checkTransaction(transaction);
-      this.mempool.push(transaction);
-      console.log('Added transaction to mempool ', transaction);
-    } catch (error) {
-      if (error instanceof TransactionError) throw error;
-      console.error(error);
-    }
+    checkTransaction(transaction, this.getUnspent(true));
+    // TODO: check if transaction or any intputs are not in mempool already
+    this.mempool.push(transaction);
+    console.log('Added transaction to mempool ', transaction);
   },
 
-  cleanTransactions (transactions) {
+  cleanMempool (transactions) {
     transactions.forEach(tx => {
       let index = this.mempool.findIndex(t => t.id === tx.id);
       if (index !== -1) this.mempool.splice(index, 1);
     });
-  },
-
-  updateUnspent (block) {
-    // Find all inputs with their tx ids
-    const inputs = block.transactions.reduce((inputs, tx) =>
-      inputs.concat(tx.inputs.map(i => Object.assign({}, i, {tx: tx.id}))), []);
-
-    // Remove inputs from unspent
-    inputs.forEach(inp => {
-      let index = this.unspent.findIndex(t => t.tx === inp.tx);
-      if (index !== -1) this.unspent.splice(index, 1);
-    });
-
-    // Find all outputs with ther tx ids
-    const outputs = block.transactions.reduce((outputs, tx) =>
-      outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), []);
-
-    // Add to unspent
-    this.unspent = this.unspent.concat(outputs);
-  },
-
-  getUnspentForAddress (address) {
-    return this.unspent.filter(u => u.address === address);
-  },
-
-  getBalanceForAddress (address) {
-    return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0);
   },
 
   updateChain (newChain) {
@@ -107,6 +103,19 @@ const store = {
 
   addPeer (peer) {
     this.peers.push(peer);
+  },
+
+  send (toAddress, amount) {
+    try {
+      const transaction = buildTransaction(this.wallet, toAddress, parseInt(amount), this.getUnspentForAddress(this.wallet.public));
+      console.log(transaction);
+      this.addTransaction(transaction);
+      return 'Transaction added to pool: ' + transaction.id;
+    } catch (e) {
+      if (! e instanceof TransactionError) throw e;
+      console.error(e);
+      return e.message;
+    }
   },
 };
 
