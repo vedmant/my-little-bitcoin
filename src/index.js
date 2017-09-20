@@ -3,7 +3,7 @@ const {mineBlock} = require('./lib/block');
 const store = require('./store');
 
 require('./server');
-require('./socket');
+require('./p2p');
 
 // co(function* () {
 //   store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public));

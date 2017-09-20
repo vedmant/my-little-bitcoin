@@ -70,6 +70,12 @@ function initMessageHandler (connection) {
   });
 }
 
+/**
+ * Handle connection errors
+ *
+ * @param connection
+ * @param index
+ */
 function initErrorHandler (connection, index) {
   const closeConnection = (connection, index) => {
     console.log(`Connection broken to: ${connection.url === undefined ? 'incoming' : connection.url}`);
@@ -84,6 +90,12 @@ function initErrorHandler (connection, index) {
   connection.ws.on('error', () => closeConnection(connection, index));
 }
 
+/**
+ * Handle connection initialization
+ *
+ * @param ws
+ * @param index
+ */
 function initConnection (ws, index = null) {
   let connection = null;
   if (index === null) {
@@ -105,6 +117,12 @@ function initConnection (ws, index = null) {
   }
 }
 
+/**
+ * Connect to peer
+ *
+ * @param connection
+ * @param index
+ */
 function connectToPeer(connection, index) {
   connection.ws = new WebSocket(connection.url);
   connection.ws.on('open', () => initConnection(connection.ws, index));
