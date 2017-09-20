@@ -1,9 +1,7 @@
 const {BlockError} = require('../errors');
 const CryptoJS = require('crypto-js');
 const Joi = require('joi');
-const {spawn} = require('threads');
-const {checkTransactions, createRewardTransaction} = require('./transaction');
-const bus = require('../bus');
+const {checkTransactions} = require('./transaction');
 
 const blockSchema = Joi.object().keys({
   index: Joi.number(),
@@ -79,47 +77,5 @@ function getDifficulty(hash) {
   return parseInt(hash.substring(0, 8), 16);
 }
 
-/**
- * Mine a block in separate process
- *
- * @param transactions Transactions list to add to the block
- * @param lastBlock Last block in the blockchain
- * @param difficulty Current difficulty
- * @param address Addres for reward transaction
- * @return {*}
- */
-function mineBlock(transactions, lastBlock, difficulty, address) {
-  transactions = transactions.slice();
-  transactions.push(createRewardTransaction(address));
-  const block = {
-    index: lastBlock.index + 1,
-    prevHash: lastBlock.hash,
-    timestamp: Math.floor(new Date().getTime() / 1000),
-    transactions,
-    nonce: 0,
-  };
-  block.hash = calculateHash(block);
 
-  // Use separate thread to not to block main thread
-  const thread = spawn(function ({block, difficulty, __dirname}, done, progress) {
-    const util = require(__dirname + '/block');
-    while (util.getDifficulty(block.hash) >= difficulty) {
-      block.nonce++;
-      block.hash = util.calculateHash(block);
-      if (block.nonce % 100000 === 0) progress('100K hashes');
-    }
-    done(block);
-  })
-    .send({block, difficulty, __dirname})
-    .on('progress', progress => console.log(progress));
-
-  // (to test) If other process found the same block faster, kill current one
-  // TODO: resolve promise, or throw error to let it mine next block
-  // bus.on('block-added', b => {if (b.index === block.index) thread.kill()});
-  bus.on('mine-stop', b => thread.kill());
-
-  return thread.promise();
-}
-
-
-module.exports = {checkBlock, calculateHash, makeGenesisBlock, getDifficulty, mineBlock};
+module.exports = {checkBlock, calculateHash, makeGenesisBlock, getDifficulty};

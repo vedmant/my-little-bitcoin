@@ -1,10 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const store = require('./store');
-const {mineBlock} = require('./lib/block');
+const {mineBlock} = require('./miner');
 const config = require('./config');
 const co = require('co');
 const bus = require('./bus');
+const {BlockError, TransactionError} = require('./errors');
 
 const app = express();
 app.use(bodyParser.json());
@@ -32,8 +33,19 @@ app.get('/mine', (req, res) => {
   });
   co(function* () {
     while (mine) {
-      store.addBlock(yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public));
-      res.write('Mined a block, balance: ' + store.getBalance() + '\n');
+      const block = yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public);
+      if (! block) {
+        res.write('Someone mined block first, started mining new one\n');
+        continue;
+      }
+      try {
+        store.addBlock(block);
+        bus.emit('block-added-by-me', block);
+        res.write(`Mined a block: ${block.index}, balance: ` + store.getBalance() + '\n');
+      } catch (e) {
+        if (! e instanceof BlockError && ! e instanceof TransactionError) throw e;
+        res.write(`Error: ${e.message}` + '\n');
+      }
     }
   }).catch(e => console.log(e));
 });

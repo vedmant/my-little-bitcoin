@@ -67,18 +67,11 @@ const store = {
    */
 
   addBlock (block) {
-    try {
-      checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent());
-      this.chain.push(block); // Push block to the chain
-      this.cleanMempool(block.transactions); // Clean mempool
-      bus.emit('block-added', block);
-      console.log('Added block to the chain ', block);
-      return block;
-    } catch (e) {
-      if (! e instanceof BlockError && ! e instanceof TransactionError) throw e;
-      console.error(e);
-      return e.message;
-    }
+    checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent());
+    this.chain.push(block); // Push block to the chain
+    this.cleanMempool(block.transactions); // Clean mempool
+    console.log(`Added block ${block.index} to the chain`);
+    return block;
   },
 
   addTransaction (transaction, emit = true) {
