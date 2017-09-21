@@ -19,7 +19,6 @@ const blockSchema = Joi.object().keys({
  * @return {*}
  */
 function isDataValid(block) {
-  console.log(Joi.validate(block, blockSchema))
   return Joi.validate(block, blockSchema).error === null;
 }
 
