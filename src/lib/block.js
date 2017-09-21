@@ -6,7 +6,7 @@ const {checkTransactions} = require('./transaction');
 const blockSchema = Joi.object().keys({
   index: Joi.number(),
   prevHash: Joi.string().hex().length(64),
-  time: Joi.number(),
+  timestamp: Joi.number(),
   transactions: Joi.array(),
   nonce: Joi.number(),
   hash: Joi.string().hex().length(64),
@@ -19,7 +19,8 @@ const blockSchema = Joi.object().keys({
  * @return {*}
  */
 function isDataValid(block) {
-  return Joi.validate(block, blockSchema);
+  console.log(Joi.validate(block, blockSchema))
+  return Joi.validate(block, blockSchema).error === null;
 }
 
 /**
