@@ -1,23 +1,28 @@
-const fs = require('fs');
-const crypto = require('crypto');
-const elliptic = require('elliptic');
-const EdDSA = elliptic.eddsa;
-const ec = new EdDSA('ed25519');
+const {randomBytes} = require('crypto');
+const secp256k1 = require('secp256k1');
+const bs58 = require('bs58');
 
 function generateKeyPair() {
-  const keyPair = ec.keyFromSecret(crypto.randomBytes(32));
+  // Generate privKey
+  let privKey;
+  do {
+    privKey = randomBytes(32);
+  } while (! secp256k1.privateKeyVerify(privKey));
+  // Get the public key in a compressed format
+  const pubKey = secp256k1.publicKeyCreate(privKey);
+
   return {
-    secret: keyPair.getSecret().toString('hex'),
-    public: elliptic.utils.toHex(keyPair.getPublic()),
+    private: privKey.toString('hex'),
+    public: bs58.encode(pubKey),
   };
 }
 
-function signHash(secretKey, hash) {
-  return ec.keyFromSecret(secretKey).sign(hash).toHex().toLowerCase();
+function signHash(privateKey, hash) {
+  return secp256k1.sign(new Buffer(hash, 'hex'), new Buffer(privateKey, 'hex')).signature.toString('base64');
 }
 
-function verifySignature(publicKey, signature, hash) {
-  return ec.keyFromPublic(publicKey, 'hex').verify(hash, signature);
+function verifySignature(address, signature, hash) {
+  return secp256k1.verify(new Buffer(hash, 'hex'), new Buffer(signature, 'base64'), bs58.decode(address));
 }
 
 
