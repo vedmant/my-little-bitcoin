@@ -17,6 +17,8 @@ const store = {
 
   wallet: generateKeyPair(),
 
+  mining: false,
+
   /*
    * Getters
    */
@@ -30,13 +32,16 @@ const store = {
     return this.chain.slice(index);
   },
 
-  isChainValid () {
-    return isChainValid(this.chain, this.difficulty);
+  getTransactions (withMempool = true) {
+    let transactions = this.chain.reduce((transactions, block) => transactions.concat(block.transactions), []);
+    if (withMempool) transactions = transactions.concat(this.mempool);
+
+    return transactions
   },
 
   getUnspent (withMempool = false) {
-    let transactions = this.chain.reduce((transactions, block) => transactions.concat(block.transactions), []);
-    if (withMempool) transactions = transactions.concat(this.mempool);
+    const transactions = this.getTransactions(withMempool);
+
     // Find all inputs with their tx ids
     const inputs = transactions.reduce((inputs, tx) => inputs.concat(tx.inputs), []);
 
@@ -44,6 +49,7 @@ const store = {
     const outputs = transactions.reduce((outputs, tx) =>
       outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), []);
 
+    // Figure out which outputs are unspent
     const unspent = outputs.filter(output =>
       typeof inputs.find(input => input.tx === output.tx && input.index === output.index && input.amount === output.amount) === 'undefined');
 
@@ -107,6 +113,7 @@ const store = {
       const transaction = buildTransaction(this.wallet, toAddress, parseInt(amount), this.getUnspentForAddress(this.wallet.public));
       console.log(transaction);
       this.addTransaction(transaction);
+      bus.emit('balance-updated', {address: this.wallet.public, balance: this.getBalanceForAddress(this.wallet.public)});
       return 'Transaction added to pool: ' + transaction.id;
     } catch (e) {
       if (! e instanceof TransactionError) throw e;

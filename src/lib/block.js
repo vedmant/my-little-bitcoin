@@ -6,7 +6,7 @@ const {checkTransactions} = require('./transaction');
 const blockSchema = Joi.object().keys({
   index: Joi.number(),
   prevHash: Joi.string().hex().length(64),
-  timestamp: Joi.number(),
+  time: Joi.number(),
   transactions: Joi.array(),
   nonce: Joi.number(),
   hash: Joi.string().hex().length(64),
@@ -45,20 +45,20 @@ function checkBlock(previousBlock, block, difficulty, unspent) {
  *
  * @param block
  */
-function calculateHash({index, prevHash, timestamp, transactions, nonce}) {
-  return CryptoJS.SHA256(JSON.stringify({index, prevHash, timestamp, transactions, nonce})).toString();
+function calculateHash({index, prevHash, time, transactions, nonce}) {
+  return CryptoJS.SHA256(JSON.stringify({index, prevHash, time, transactions, nonce})).toString();
 }
 
 /**
  * Create genesis block
  *
- * @return {{index: number, prevHash: string, timestamp: number, transactions: Array, nonce: number}}
+ * @return {{index: number, prevHash: string, time: number, transactions: Array, nonce: number}}
  */
 function makeGenesisBlock() {
   const block = {
     index: 0,
     prevHash: '0',
-    timestamp: '1505759228',
+    time: '1505759228',
     transactions: [],
     nonce: 0,
   };

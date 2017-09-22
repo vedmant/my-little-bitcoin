@@ -11,9 +11,10 @@
 
 ## TODO
 
+- Demo mode mining using timeout
+- Add signature to outputs for transaction, validate signature
 - Multiple wallets
 - Front end UI
-- Websokets to reflect events in UI
 - Implement peers blockhains conflict resolution
 
 ## Backend setup

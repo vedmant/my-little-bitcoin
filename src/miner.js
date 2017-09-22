@@ -2,6 +2,34 @@ const {spawn} = require('threads');
 const {createRewardTransaction} = require('./lib/transaction');
 const bus = require('./bus');
 const {calculateHash} = require('./lib/block');
+const co = require('co');
+const store = require('./store');
+const {BlockError, TransactionError} = require('./errors');
+
+/**
+ * Start mining
+ */
+function mine () {
+  if (! store.mining) return;
+
+  co(function* () {
+    while (store.mining) {
+      const block = yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public);
+      if (! block) {
+        // Someone mined block first, started mining new one
+        continue;
+      }
+      try {
+        store.addBlock(block);
+        bus.emit('block-added-by-me', block);
+        bus.emit('balance-updated', {address: store.wallet.public, balance: store.getBalanceForAddress(store.wallet.public)});
+      } catch (e) {
+        if (! e instanceof BlockError && ! e instanceof TransactionError) throw e;
+        console.error(e)
+      }
+    }
+  }).catch(e => console.error(e));
+}
 
 /**
  * Mine a block in separate process
@@ -18,7 +46,7 @@ function mineBlock(transactions, lastBlock, difficulty, address) {
   const block = {
     index: lastBlock.index + 1,
     prevHash: lastBlock.hash,
-    timestamp: Math.floor(new Date().getTime() / 1000),
+    time: Math.floor(new Date().getTime() / 1000),
     transactions,
     nonce: 0,
   };
@@ -67,4 +95,4 @@ function mineBlock(transactions, lastBlock, difficulty, address) {
 }
 
 
-module.exports = {mineBlock};
+module.exports = {mine, mineBlock};

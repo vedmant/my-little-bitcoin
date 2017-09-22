@@ -1,14 +1,43 @@
-const express = require('express');
-const bodyParser = require('body-parser');
 const store = require('./store');
-const {mineBlock} = require('./miner');
+const {mine} = require('./miner');
 const config = require('./config');
-const co = require('co');
 const bus = require('./bus');
 const {BlockError, TransactionError} = require('./errors');
 const path = require('path');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
+
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
+const sockets = [];
+
+io.on('connection', function (socket) {
+  sockets.push(socket);
+  console.log('Websocket user connected');
+  socket.on('disconnect', function(){
+    console.log('Websocket user disconnected');
+  });
+});
+
+const broadcast = (type, message) => sockets.forEach(c => sockets.emit(type, message));
+
+/*
+ * Broadacast messages
+ */
+bus.on('block-added', block => io.emit('block-added', block));
+bus.on('block-added-by-me', block => io.emit('block-added-by-me', block));
+bus.on('transaction-added', transaction => io.emit('transaction-added', transaction));
+bus.on('balance-updated', balance => io.emit('balance-updated', balance));
+bus.on('mine-start', () => io.emit('mine-started'));
+bus.on('mine-stop', () => io.emit('mine-stopped'));
+
+
+/*
+ * Parse JSON automatically
+ */
 app.use(bodyParser.json());
 
 app.use('/', express.static(path.resolve(__dirname, '../dist')));
@@ -16,53 +45,38 @@ app.use('/', express.static(path.resolve(__dirname, '../dist')));
 /*
  * Get short blockchain status
  */
-app.get('/v1/status', (req, res) => res.send(JSON.stringify({
+app.get('/v1/status', (req, res) => res.json({
   chain: store.chain.slice(Math.max(store.chain.length - 5, 0)),
   mempool: store.mempool.slice(Math.max(store.mempool.length - 5, 0)),
   wallets: [
     {name: 'Main', public: store.wallet.public, balance: store.getBalanceForAddress(store.wallet.public)},
-  ]
-})));
+  ],
+}));
 
-app.get('/v1/send/:address/:amount', (req, res) => res.send(store.send(req.params.address, req.params.amount)));
-
-app.get('/v1/chain', (req, res) => res.send(JSON.stringify(store.chain)));
-
-app.get('/v1/blocks-after/:index', (req, res) => res.send(JSON.stringify(store.blocksAfter(req.params.index))));
-
-app.get('/v1/balance/:address', (req, res) => res.send(JSON.stringify({balance: store.getBalanceForAddress(req.params.address)})));
-
-app.get('/v1/mine', (req, res) => {
-  res.setHeader('Connection', 'Transfer-Encoding');
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Transfer-Encoding', 'chunked');
-  res.write('<pre>Started mining...\n');
-  console.log('Started mining...');
-  let mine = true;
-  req.connection.on('close', function () {
-    mine = false;
-    bus.emit('mine-stop');
-  });
-  co(function* () {
-    while (mine) {
-      const block = yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public);
-      if (! block) {
-        res.write('Someone mined block first, started mining new one\n');
-        continue;
-      }
-      try {
-        store.addBlock(block);
-        bus.emit('block-added-by-me', block);
-        res.write(`Mined a block: ${block.index}, balance: ` + store.getBalance() + '\n');
-      } catch (e) {
-        if (! e instanceof BlockError && ! e instanceof TransactionError) throw e;
-        res.write(`Error: ${e.message}` + '\n');
-      }
-    }
-  }).catch(e => console.log(e));
+app.get('/v1/send/:address/:amount', (req, res) => {
+  res.json(store.send(req.params.address, req.params.amount))
 });
 
-app.listen(config.httpPort, () => console.log('Listening http on port: ' + config.httpPort));
+app.get('/v1/balance/:address', (req, res) => res.json({balance: store.getBalanceForAddress(req.params.address)}));
+
+app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b => b.index === req.params.index)}));
+
+app.get('/v1/transaction/:index', (req, res) => res.json({transaction: store.chain.find(b => b.index === req.params.index)}));
+
+app.get('/v1/mine-start', (req, res) => {
+  store.mining = true
+  bus.emit('mine-start')
+  mine()
+  res.json('Ok')
+});
+
+app.get('/v1/mine-stop', (req, res) => {
+  store.mining = false
+  bus.emit('mine-stop')
+  res.json('Ok')
+});
+
+http.listen(config.httpPort, () => console.log('Listening http on port: ' + config.httpPort));
 
 
 module.exports = app;

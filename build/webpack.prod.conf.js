@@ -92,7 +92,7 @@ var webpackConfig = merge(baseWebpackConfig, {
     // copy custom static assets
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, '../static'),
+        from: path.resolve(__dirname, '../src/front/static'),
         to: config.build.assetsSubDirectory,
         ignore: ['.*']
       }
@@ -123,16 +123,5 @@ if (config.build.bundleAnalyzerReport) {
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())
 }
 
-webpackConfig.plugins.push({
-  test: /\.scss$/,
-  loader: ExtractTextPlugin.extract({
-    fallback: 'style-loader',
-    use: [
-      'css-loader', // translates CSS into CommonJS
-      'postcss-loader',
-      'sass-loader',  // compiles Less to CSS
-    ],
-  }),
-})
 
 module.exports = webpackConfig

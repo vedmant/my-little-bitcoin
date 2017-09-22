@@ -18,6 +18,8 @@ const state = {
 
   stats: [],
 
+  mining: false,
+
 }
 
 const mutations = {
@@ -34,7 +36,34 @@ const mutations = {
 
   ERROR (state) {
     state.loading = false
-  }
+  },
+
+  ADD_BLOCK (state, block) {
+    state.chain.push(block);
+    state.chain = state.chain.slice(Math.max(state.chain.length - 5, 0));
+  },
+
+  ADD_TRANSACTION (state, transaction) {
+    state.mempool.push(transaction);
+    state.mempool = state.mempool.slice(Math.max(state.mempool.length - 5, 0));
+  },
+
+  CLEAN_MEMPOOL (state) {
+    state.mempool = []
+  },
+
+  UPDATE_BALANCE (state, balance) {
+    const index = state.wallets.findIndex(w => w.public === balance.address)
+    state.wallets[index].balance = balance.balance
+  },
+
+  MINE_START (state) {
+    state.mining = true
+  },
+
+  MINE_STOP (state) {
+    state.mining = false
+  },
 }
 
 const actions = {
@@ -46,7 +75,19 @@ const actions = {
       const resp = yield Axios.get('/v1/status')
       commit('GET_STATUS_OK', resp.data)
     }).catch(e => commit('ERROR', e));
-  }
+  },
+
+  startMine({commit}) {
+    return co(function* () {
+      yield Axios.get('/v1/mine-start')
+    }).catch(e => commit('ERROR', e));
+  },
+
+  stopMine({commit}) {
+    return co(function* () {
+      yield Axios.get('/v1/mine-stop')
+    }).catch(e => commit('ERROR', e));
+  },
 
 }
 
