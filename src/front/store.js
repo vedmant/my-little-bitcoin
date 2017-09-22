@@ -33,6 +33,7 @@ const mutations = {
     state.chain = status.chain
     state.mempool = status.mempool
     state.wallets = status.wallets
+    state.mining = status.mining
   },
 
   ERROR (state) {

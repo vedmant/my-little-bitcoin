@@ -51,6 +51,7 @@ app.get('/v1/status', (req, res) => res.json({
   wallets: [
     {name: 'Main', public: store.wallet.public, balance: store.getBalanceForAddress(store.wallet.public)},
   ],
+  mining: store.mining,
 }));
 
 app.get('/v1/send/:address/:amount', (req, res) => {
