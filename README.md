@@ -1,12 +1,42 @@
 # my-little-bitcoin
 
-> Sample naive cryptocurrency
+> Sample naive cryptocurrency implementation on JavaScript for studying purpose
 
-## Build Setup
+## Features
+
+- Blocks mining and simple POW with reward
+- Create transactions and send amount to address using unspent outputs
+- Check address balance
+- Peer to peer connection, blockchain synchronization
+
+## TODO
+
+- Multiple wallets
+- Front end UI
+- Websokets to reflect events in UI
+- Implement peers blockhains conflict resolution
+
+## Backend setup
 
 ``` bash
 # install dependencies
-npm install
+yarn
+
+# Start first node
+npm start
+
+# Start second node
+npm start2
+
+# Start third node
+npm start3
+```
+
+## Frontend build Setup
+
+``` bash
+# install dependencies
+yarn
 
 # serve with hot reload at localhost:8080
 npm run dev
@@ -26,5 +56,4 @@ npm run e2e
 # run all tests
 npm test
 ```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+ 

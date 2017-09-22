@@ -17,6 +17,7 @@
   "author": "Vedmant",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.16.2",
     "body-parser": "^1.18.1",
     "bootstrap-sass": "^3.3.7",
     "bs58": "^4.0.1",
@@ -25,13 +26,14 @@
     "crypto-js": "^3.1.9-1",
     "express": "^4.15.4",
     "joi": "^11.0.1",
+    "jquery": "^3.2.1",
     "lodash": "^4.17.4",
     "secp256k1": "^3.3.0",
     "socket.io": "^2.0.3",
     "threads": "^0.8.1",
     "vue": "^2.4.4",
     "vue-router": "^2.7.0",
-    "vue-strap": "^1.1.37",
+    "vuex": "^2.4.0",
     "ws": "^3.2.0"
   },
   "devDependencies": {

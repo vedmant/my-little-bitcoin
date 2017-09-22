@@ -13,7 +13,16 @@ app.use(bodyParser.json());
 
 app.use('/', express.static(path.resolve(__dirname, '../dist')));
 
-app.get('/v1/status', (req, res) => res.send(JSON.stringify(store)));
+/*
+ * Get short blockchain status
+ */
+app.get('/v1/status', (req, res) => res.send(JSON.stringify({
+  chain: store.chain.slice(Math.max(store.chain.length - 5, 0)),
+  mempool: store.mempool.slice(Math.max(store.mempool.length - 5, 0)),
+  wallets: [
+    {name: 'Main', public: store.wallet.public, balance: store.getBalanceForAddress(store.wallet.public)},
+  ]
+})));
 
 app.get('/v1/send/:address/:amount', (req, res) => res.send(store.send(req.params.address, req.params.amount)));
 
