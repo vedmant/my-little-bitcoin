@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import createLogger from 'vuex/dist/logger';
 import co from 'co'
 import Axios from 'axios'
+import toast from './vuex/toast'
 
 Vue.use(Vuex);
 
@@ -99,4 +100,5 @@ export default new Vuex.Store({
   state,
   mutations,
   actions,
+  modules: {toast}
 });

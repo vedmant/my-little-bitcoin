@@ -9,6 +9,10 @@ socket.on('block-added', (block) => {
 })
 
 socket.on('block-added-by-me', (block) => {
+  store.dispatch('addToastMessage', {
+    text: `You mined a new block, index: ${block.index}`,
+    type: 'success',
+  });
   store.commit('ADD_BLOCK', block)
   store.commit('CLEAN_MEMPOOL')
 })
