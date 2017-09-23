@@ -79,7 +79,7 @@ app.get('/v1/mine-stop', (req, res) => {
   res.json('Ok')
 })
 
-http.listen(config.httpPort, () => console.log('Listening http on port: ' + config.httpPort))
+http.listen(config.httpPort, 'localhost', () => console.log('Listening http on port: ' + config.httpPort))
 
 
 module.exports = app
