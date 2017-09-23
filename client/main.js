@@ -4,7 +4,9 @@ import router from './router'
 import store from './store'
 import './ws'
 import 'jquery'
-import 'bootstrap-sass'
+import BootstrapVue from 'bootstrap-vue'
+
+Vue.use(BootstrapVue);
 
 import './scss/index.scss'
 

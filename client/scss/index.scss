@@ -1,6 +1,8 @@
-$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
 @import "variables";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap";
+@import "~bootstrap/scss/bootstrap";
+
+
+.page { padding-top: 3rem; }
 
 
 /**
@@ -11,3 +13,13 @@ $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
   background-color: rgba(255, 255, 255, 0.5);
 }
 .main-spinner.active{ visibility: visible; opacity: 1; }
+
+/**
+ * Some bootstrap fixes
+ */
+.card > .card-header + .list-group > .list-group-item:first-child,
+.card > .list-group + .card-footer {
+  border-top: 0;
+}
+a, button, .btn { cursor: pointer; }
+.pull-right { float: right; }

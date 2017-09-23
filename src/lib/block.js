@@ -1,7 +1,7 @@
 const {BlockError} = require('../errors')
 const CryptoJS = require('crypto-js')
 const Joi = require('joi')
-const {checkTransactions} = require('./transaction')
+const {checkTransactions, createRewardTransaction} = require('./transaction')
 
 const blockSchema = Joi.object().keys({
   index: Joi.number(),
@@ -68,6 +68,30 @@ function makeGenesisBlock () {
 }
 
 /**
+ * Create new block
+ *
+ * @param transactions {array}
+ * @param lastBlock {object}
+ * @param address {string}
+ * @return {{index: *, prevHash, time: number, transactions: *, nonce: number}}
+ */
+function createBlock (transactions, lastBlock, address) {
+  transactions = transactions.slice()
+  transactions.push(createRewardTransaction(address))
+  const block = {
+    index: lastBlock.index + 1,
+    prevHash: lastBlock.hash,
+    time: Math.floor(new Date().getTime() / 1000),
+    transactions,
+    nonce: 0,
+  }
+  block.hash = calculateHash(block)
+
+  return block
+}
+
+
+/**
  * Get hash difficulty
  *
  * @param hash
@@ -78,4 +102,4 @@ function getDifficulty (hash) {
 }
 
 
-module.exports = {checkBlock, calculateHash, makeGenesisBlock, getDifficulty}
+module.exports = {checkBlock, calculateHash, makeGenesisBlock, createBlock, getDifficulty}

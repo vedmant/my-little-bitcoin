@@ -8,10 +8,10 @@
 - Create transactions and send amount to address using unspent outputs
 - Check address balance
 - Peer to peer connection, blockchain synchronization
+- Demo mode mining to reduce CPU load
 
 ## TODO
 
-- Demo mode mining using timeout
 - Add signature to outputs for transaction, validate signature
 - Multiple wallets
 - Front end UI

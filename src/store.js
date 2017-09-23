@@ -7,7 +7,8 @@ const {checkTransaction, buildTransaction} = require('./lib/transaction')
 const {generateKeyPair} = require('./lib/wallet')
 
 const store = {
-  difficulty: 100000, // The less value the bigger difficulty
+
+  difficulty: config.demoMode ? 100000000 : 100000, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
 
@@ -17,7 +18,7 @@ const store = {
 
   wallet: generateKeyPair(),
 
-  mining: false,
+  mining: !! config.demoMode,
 
   /*
    * Getters

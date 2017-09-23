@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import createLogger from 'vuex/dist/logger';
+import createLogger from 'vuex/dist/logger'
 import co from 'co'
 import Axios from 'axios'
 import toast from './vuex/toast'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
 const state = {
 
@@ -21,6 +21,8 @@ const state = {
 
   mining: false,
 
+  demoMode: false,
+
 }
 
 const mutations = {
@@ -34,6 +36,7 @@ const mutations = {
     state.mempool = status.mempool
     state.wallets = status.wallets
     state.mining = status.mining
+    state.demoMode = status.demoMode
   },
 
   ERROR (state) {
@@ -41,13 +44,13 @@ const mutations = {
   },
 
   ADD_BLOCK (state, block) {
-    state.chain.push(block);
-    state.chain = state.chain.slice(Math.max(state.chain.length - 5, 0));
+    state.chain.push(block)
+    state.chain = state.chain.slice(Math.max(state.chain.length - 5, 0))
   },
 
   ADD_TRANSACTION (state, transaction) {
-    state.mempool.push(transaction);
-    state.mempool = state.mempool.slice(Math.max(state.mempool.length - 5, 0));
+    state.mempool.push(transaction)
+    state.mempool = state.mempool.slice(Math.max(state.mempool.length - 5, 0))
   },
 
   CLEAN_MEMPOOL (state) {
@@ -56,6 +59,7 @@ const mutations = {
 
   UPDATE_BALANCE (state, balance) {
     const index = state.wallets.findIndex(w => w.public === balance.address)
+    if (index === - 1) return console.error('Cant find wallet to update balance')
     state.wallets[index].balance = balance.balance
   },
 
@@ -70,36 +74,47 @@ const mutations = {
 
 const actions = {
 
-  getState({commit}) {
+  getState ({commit}) {
     commit('GET_STATUS')
 
     return co(function* () {
       const resp = yield Axios.get('/v1/status')
       commit('GET_STATUS_OK', resp.data)
-    }).catch(e => commit('ERROR', e));
+    }).catch(e => commit('ERROR', e))
   },
 
-  startMine({commit}) {
+  startMine ({commit}) {
     return co(function* () {
       yield Axios.get('/v1/mine-start')
-    }).catch(e => commit('ERROR', e));
+    }).catch(e => commit('ERROR', e))
   },
 
-  stopMine({commit}) {
+  stopMine ({commit}) {
     return co(function* () {
       yield Axios.get('/v1/mine-stop')
-    }).catch(e => commit('ERROR', e));
+    }).catch(e => commit('ERROR', e))
   },
 
 }
 
-const debug = process.env.NODE_ENV !== 'production';
+const debug = process.env.NODE_ENV !== 'production'
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   strict: debug,
   plugins: debug ? [createLogger()] : [],
   state,
   mutations,
   actions,
-  modules: {toast}
-});
+  modules: {toast},
+})
+
+Axios.interceptors.response.use(function (response) {
+  // Do something with response data
+  return response
+}, function (error) {
+  store.dispatch('addToastMessage', {type: 'danger', text: error.response.data})
+  return Promise.reject(error)
+})
+
+
+export default store

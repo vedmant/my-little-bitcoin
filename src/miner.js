@@ -1,7 +1,6 @@
 const {spawn} = require('threads')
-const {createRewardTransaction} = require('./lib/transaction')
 const bus = require('./bus')
-const {calculateHash} = require('./lib/block')
+const {calculateHash, createBlock} = require('./lib/block')
 const co = require('co')
 const store = require('./store')
 const {BlockError, TransactionError} = require('./errors')
@@ -45,34 +44,45 @@ function mine () {
  * @return {*}
  */
 function mineBlock (transactions, lastBlock, difficulty, address) {
-  transactions = transactions.slice()
-  transactions.push(createRewardTransaction(address))
-  const block = {
-    index: lastBlock.index + 1,
-    prevHash: lastBlock.hash,
-    time: Math.floor(new Date().getTime() / 1000),
-    transactions,
-    nonce: 0,
-  }
+  const block = createBlock(transactions, lastBlock, address)
   block.hash = calculateHash(block)
 
   console.log(`Started mining block ${block.index}`)
 
   return new Promise((resolve, reject) => {
-    // Listeners for stopping mining
-    const blockAddedListener = b => {
-      if (b.index >= block.index) {
-        console.log('kill thread')
-        removeListeners()
-        resolve(null)
-        thread.kill()
-      }
+    if (config.demoMode) {
+      setTimeout(() => findBlockHash(block, difficulty).then(block => resolve(block)), 60 * 1000)
+    } else {
+      findBlockHash(block, difficulty).then(block => resolve(block))
     }
-    const mineStopListener = b => thread.kill()
+  })
+}
+
+/**
+ * Find block hash according to difficulty
+ *
+ * @param block
+ * @param difficulty
+ * @return {Promise}
+ */
+function findBlockHash (block, difficulty) {
+  return new Promise((resolve, reject) => {
+    const mineStop = () => {
+      removeListeners()
+      resolve(null)
+      console.log('kill thread')
+      thread.kill()
+    }
+    // Listeners for stopping mining
+    const blockAddedListener = b => {if (b.index >= block.index) mineStop()}
+    const mineStopListener = b => mineStop
     const removeListeners = () => {
       bus.removeListener('block-added', blockAddedListener)
       bus.removeListener('mine-stop', mineStopListener)
     }
+    // If other process found the same block faster, kill current one
+    bus.once('block-added', blockAddedListener)
+    bus.once('mine-stop', mineStopListener)
 
     // Use separate thread to not to block main thread
     const thread = spawn(function ({block, difficulty, __dirname}, done, progress) {
@@ -90,12 +100,6 @@ function mineBlock (transactions, lastBlock, difficulty, address) {
         removeListeners()
         resolve(block)
       })
-
-    // (to test) If other process found the same block faster, kill current one
-    bus.once('block-added', blockAddedListener)
-    bus.once('mine-stop', mineStopListener)
-  }).then(block => {
-    return block
   })
 }
 

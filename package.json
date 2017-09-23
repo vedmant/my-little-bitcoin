@@ -20,7 +20,8 @@
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.18.1",
-    "bootstrap-sass": "^3.3.7",
+    "bootstrap": "^4.0.0-beta",
+    "bootstrap-vue": "^1.0.0-beta.9",
     "bs58": "^4.0.1",
     "co": "^4.6.0",
     "crypto": "^1.0.1",
@@ -115,5 +116,10 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "nodemonConfig": {
+    "watch": [
+      "src/*"
+    ]
+  }
 }

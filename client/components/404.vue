@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container page">
     <h3>Error 404</h3>
     <hr>
 

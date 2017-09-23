@@ -1,36 +1,22 @@
 <template>
-  <nav class="navbar navbar-default navbar-static-top">
+  <b-navbar toggleable="md" type="dark" variant="info">
     <div class="container">
-      <div class="navbar-header">
+      <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
-        <!-- Collapsed Hamburger -->
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#app-navbar-collapse">
-          <span class="sr-only">Toggle Navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
+      <b-navbar-brand to="/">My Little Bitcoin</b-navbar-brand>
 
-        <!-- Branding Image -->
-        <router-link class="navbar-brand" to="/">My Little Bitcoin</router-link>
-      </div>
+      <b-collapse is-nav id="nav_collapse">
 
-      <div class="collapse navbar-collapse" id="app-navbar-collapse">
-        <!-- Left Side Of Navbar -->
-        <ul class="nav navbar-nav">
-          &nbsp;
-        </ul>
+        <!-- Right aligned nav items -->
+        <b-nav is-nav-bar class="ml-auto">
 
-        <!-- Right Side Of Navbar -->
-        <ul class="nav navbar-nav navbar-right">
-          <!-- Authentication Links -->
-          <router-link tag="li" to="/" active-class="active" exact><a>Status</a></router-link>
-          <router-link tag="li" to="/wallets" active-class="active" exact><a>Wallets</a></router-link>
-          <router-link tag="li" to="/charts" active-class="active" exact><a>Charts</a></router-link>
-        </ul>
-      </div>
+          <b-nav-item to="/" active-class="active" exact><a>Status</a></b-nav-item>
+          <b-nav-item to="/wallets" active-class="active" exact><a>Wallets</a></b-nav-item>
+          <b-nav-item to="/charts" active-class="active" exact><a>Charts</a></b-nav-item>
+        </b-nav>
+      </b-collapse>
     </div>
-  </nav>
+  </b-navbar>
 </template>
 
 <script>
@@ -43,6 +29,9 @@ export default {
   },
 
   computed: {
+    ...mapState({
+      demoMode: s => s.demoMode,
+    })
   },
 
   methods: {}
