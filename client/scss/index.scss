@@ -1,18 +1,30 @@
 @import "variables";
 @import "~bootstrap/scss/bootstrap";
 
-
-.page { padding-top: 3rem; }
-
+.page {
+  padding-top: 3rem;
+}
 
 /**
  * Spinner
  */
-.main-spinner{ visibility: hidden; opacity: 0; transition: opacity 0.3s 0.3s ease;
-  position: fixed; z-index: 99999; top: 0; left: 0; right: 0; bottom: 0;
+.main-spinner {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s 0.3s ease;
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(255, 255, 255, 0.5);
 }
-.main-spinner.active{ visibility: visible; opacity: 1; }
+
+.main-spinner.active {
+  visibility: visible;
+  opacity: 1;
+}
 
 /**
  * Some bootstrap fixes
@@ -21,5 +33,11 @@
 .card > .list-group + .card-footer {
   border-top: 0;
 }
-a, button, .btn { cursor: pointer; }
-.pull-right { float: right; }
+
+a, button, .btn {
+  cursor: pointer;
+}
+
+.pull-right {
+  float: right;
+}

@@ -10,9 +10,9 @@
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue';
-import Spinner from './components/Spinner.vue';
-import Toast from './components/Toast.vue';
+import Navbar from './components/Navbar.vue'
+import Spinner from './components/Spinner.vue'
+import Toast from './components/Toast.vue'
 
 export default {
   components: {

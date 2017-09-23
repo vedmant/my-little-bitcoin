@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 import store from './store'
 
-const socket = io();
+const socket = io()
 
 socket.on('block-added', (block) => {
   store.commit('ADD_BLOCK', block)
@@ -12,7 +12,7 @@ socket.on('block-added-by-me', (block) => {
   store.dispatch('addToastMessage', {
     text: `You mined a new block, index: ${block.index}`,
     type: 'success',
-  });
+  })
   store.commit('ADD_BLOCK', block)
   store.commit('CLEAN_MEMPOOL')
 })

@@ -26,6 +26,7 @@ const state = {
 }
 
 const mutations = {
+
   GET_STATUS (state) {
     state.loading = true
   },
@@ -59,7 +60,7 @@ const mutations = {
 
   UPDATE_BALANCE (state, balance) {
     const index = state.wallets.findIndex(w => w.public === balance.address)
-    if (index === - 1) return console.error('Cant find wallet to update balance')
+    if (index === -1) return console.error('Cant find wallet to update balance')
     state.wallets[index].balance = balance.balance
   },
 
@@ -115,6 +116,5 @@ Axios.interceptors.response.use(function (response) {
   store.dispatch('addToastMessage', {type: 'danger', text: error.response.data})
   return Promise.reject(error)
 })
-
 
 export default store

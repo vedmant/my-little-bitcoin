@@ -9,5 +9,5 @@ export default new Router({
   routes: [
     {path: '/', name: 'Status', component: Status},
     {path: '*', component: Page404},
-  ]
+  ],
 })

@@ -5,8 +5,8 @@
         <h3>Status</h3>
       </div>
       <div class="col-sm-6 text-right">
-          <div class="btn btn-success" v-if="mining" @click="stopMine">Mining</div>
-          <div class="btn btn-danger" v-else @click="startMine">Not Mining</div>
+        <div class="btn btn-success" v-if="mining" @click="stopMine">Mining</div>
+        <div class="btn btn-danger" v-else @click="startMine">Not Mining</div>
       </div>
     </div>
     <hr>
@@ -14,7 +14,8 @@
     <b-card no-body class="mb-5">
       <strong slot="header">Last blocks</strong>
       <b-list-group v-if="chain.length" flush>
-        <b-list-group-item v-for="block in chain" :key="block.index" :to="'/block/' + block.index" class="list-group-item">{{ block.index }}: [{{ moment(block.time * 1000).format('YYYY-MM-DD h:mm:ss a') }}] - {{ block.hash }} - {{ block.transactions.length }} transactions</b-list-group-item>
+        <b-list-group-item v-for="block in chain" :key="block.index" :to="'/block/' + block.index" class="list-group-item">{{ block.index }}: [{{ moment(block.time * 1000).format('YYYY-MM-DD h:mm:ss a') }}] - {{ block.hash }} - {{ block.transactions.length }} transactions
+        </b-list-group-item>
       </b-list-group>
       <b-card-body v-else>Loading</b-card-body>
     </b-card>
@@ -25,7 +26,8 @@
         <b-card no-body class="mb-5">
           <strong slot="header">Mempool</strong>
           <b-list-group flush>
-            <b-list-group-item v-for="tx in mempool" :key="tx.id" :to="'/transaction/' + tx.id" class="list-group-item" v-html="getTransactionMessage(tx)"></b-list-group-item>
+            <b-list-group-item v-for="tx in mempool" :key="tx.id" :to="'/transaction/' + tx.id" class="list-group-item"
+                               v-html="getTransactionMessage(tx)"></b-list-group-item>
             <b-list-group-item key="empty" v-if="! mempool.length">Mempool is empty</b-list-group-item>
           </b-list-group>
         </b-card>
@@ -63,8 +65,7 @@ import {mapState, mapActions} from 'vuex'
 import moment from 'moment-mini'
 
 export default {
-  components: {
-  },
+  components: {},
 
   data () {
     return {
@@ -72,12 +73,12 @@ export default {
       send: {
         from: null,
         to: null,
-      }
+      },
     }
   },
 
   mounted () {
-    this.getState();
+    this.getState()
   },
 
   computed: {
@@ -105,13 +106,13 @@ export default {
       console.log('send')
     },
 
-    getTransactionMessage(transaction) {
+    getTransactionMessage (transaction) {
       const from = transaction.inputs[0].address
       const to = transaction.outputs.find(o => o.address !== from)
       const time = moment(transaction.time * 1000).format('YYYY-MM-DD h:mm:ss a')
 
       return `[${time}] Amount: ${to.amount}<br> from: ${from.substring(0, 20) + '...'} -> to: ${to.address.substring(0, 20) + '...'}`
-    }
-  }
+    },
+  },
 }
 </script>

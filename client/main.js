@@ -5,10 +5,9 @@ import store from './store'
 import './ws'
 import 'jquery'
 import BootstrapVue from 'bootstrap-vue'
-
-Vue.use(BootstrapVue);
-
 import './scss/index.scss'
+
+Vue.use(BootstrapVue)
 
 Vue.config.productionTip = false
 
@@ -17,5 +16,5 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
 })
