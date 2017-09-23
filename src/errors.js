@@ -1,4 +1,7 @@
-class BlockError extends Error {}
-class TransactionError extends Error {}
+class BlockError extends Error {
+}
 
-module.exports = {BlockError, TransactionError};
+class TransactionError extends Error {
+}
+
+module.exports = {BlockError, TransactionError}

@@ -1,10 +1,10 @@
-const {BlockError, TransactionError} = require('./errors');
-const bus = require('./bus');
-const config = require('./config');
-const {isChainValid} = require('./lib/chain');
-const {checkBlock, makeGenesisBlock} = require('./lib/block');
-const {checkTransaction, buildTransaction} = require('./lib/transaction');
-const {generateKeyPair} = require('./lib/wallet');
+const {BlockError, TransactionError} = require('./errors')
+const bus = require('./bus')
+const config = require('./config')
+const {isChainValid} = require('./lib/chain')
+const {checkBlock, makeGenesisBlock} = require('./lib/block')
+const {checkTransaction, buildTransaction} = require('./lib/transaction')
+const {generateKeyPair} = require('./lib/wallet')
 
 const store = {
   difficulty: 100000, // The less value the bigger difficulty
@@ -24,48 +24,48 @@ const store = {
    */
 
   lastBlock () {
-    return this.chain[this.chain.length - 1];
+    return this.chain[this.chain.length - 1]
   },
 
   blocksAfter (index) {
-    if (index >= this.chain.length) return [];
-    return this.chain.slice(index);
+    if (index >= this.chain.length) return []
+    return this.chain.slice(index)
   },
 
   getTransactions (withMempool = true) {
-    let transactions = this.chain.reduce((transactions, block) => transactions.concat(block.transactions), []);
-    if (withMempool) transactions = transactions.concat(this.mempool);
+    let transactions = this.chain.reduce((transactions, block) => transactions.concat(block.transactions), [])
+    if (withMempool) transactions = transactions.concat(this.mempool)
 
     return transactions
   },
 
   getUnspent (withMempool = false) {
-    const transactions = this.getTransactions(withMempool);
+    const transactions = this.getTransactions(withMempool)
 
     // Find all inputs with their tx ids
-    const inputs = transactions.reduce((inputs, tx) => inputs.concat(tx.inputs), []);
+    const inputs = transactions.reduce((inputs, tx) => inputs.concat(tx.inputs), [])
 
     // Find all outputs with their tx ids
     const outputs = transactions.reduce((outputs, tx) =>
-      outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), []);
+      outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), [])
 
     // Figure out which outputs are unspent
     const unspent = outputs.filter(output =>
-      typeof inputs.find(input => input.tx === output.tx && input.index === output.index && input.amount === output.amount) === 'undefined');
+      typeof inputs.find(input => input.tx === output.tx && input.index === output.index && input.amount === output.amount) === 'undefined')
 
-    return unspent;
+    return unspent
   },
 
   getUnspentForAddress (address) {
-    return this.getUnspent(true).filter(u => u.address === address);
+    return this.getUnspent(true).filter(u => u.address === address)
   },
 
   getBalanceForAddress (address) {
-    return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0);
+    return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0)
   },
 
   getBalance () {
-    return this.getBalanceForAddress(this.wallet.public);
+    return this.getBalanceForAddress(this.wallet.public)
   },
 
   /*
@@ -73,55 +73,58 @@ const store = {
    */
 
   addBlock (block) {
-    checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent());
-    this.chain.push(block); // Push block to the chain
-    this.cleanMempool(block.transactions); // Clean mempool
-    console.log(`Added block ${block.index} to the chain`);
-    return block;
+    checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent())
+    this.chain.push(block) // Push block to the chain
+    this.cleanMempool(block.transactions) // Clean mempool
+    console.log(`Added block ${block.index} to the chain`)
+    return block
   },
 
   addTransaction (transaction, emit = true) {
-    checkTransaction(transaction, this.getUnspent(true));
+    checkTransaction(transaction, this.getUnspent(true))
     // TODO: check if transaction or any intputs are not in mempool already
-    this.mempool.push(transaction);
-    if (emit) bus.emit('transaction-added', transaction);
-    console.log('Added transaction to mempool ', transaction);
+    this.mempool.push(transaction)
+    if (emit) bus.emit('transaction-added', transaction)
+    console.log('Added transaction to mempool ', transaction)
   },
 
   cleanMempool (transactions) {
     transactions.forEach(tx => {
-      let index = this.mempool.findIndex(t => t.id === tx.id);
-      if (index !== -1) this.mempool.splice(index, 1);
-    });
+      let index = this.mempool.findIndex(t => t.id === tx.id)
+      if (index !== - 1) this.mempool.splice(index, 1)
+    })
   },
 
   updateChain (newChain) {
     if (newChain.length > this.chain.length && isChainValid(newChain, this.difficulty)) {
-      this.chain = newChain;
-      return true;
+      this.chain = newChain
+      return true
     }
 
-    return false;
+    return false
   },
 
   addPeer (peer) {
-    this.peers.push(peer);
+    this.peers.push(peer)
   },
 
   send (toAddress, amount) {
     try {
-      const transaction = buildTransaction(this.wallet, toAddress, parseInt(amount), this.getUnspentForAddress(this.wallet.public));
-      console.log(transaction);
-      this.addTransaction(transaction);
-      bus.emit('balance-updated', {address: this.wallet.public, balance: this.getBalanceForAddress(this.wallet.public)});
-      return 'Transaction added to pool: ' + transaction.id;
+      const transaction = buildTransaction(this.wallet, toAddress, parseInt(amount), this.getUnspentForAddress(this.wallet.public))
+      console.log(transaction)
+      this.addTransaction(transaction)
+      bus.emit('balance-updated', {
+        address: this.wallet.public,
+        balance: this.getBalanceForAddress(this.wallet.public),
+      })
+      return 'Transaction added to pool: ' + transaction.id
     } catch (e) {
-      if (! e instanceof TransactionError) throw e;
-      console.error(e);
-      return e.message;
+      if (! e instanceof TransactionError) throw e
+      console.error(e)
+      return e.message
     }
   },
-};
+}
 
 
-module.exports = store;
+module.exports = store

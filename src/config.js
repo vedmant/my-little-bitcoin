@@ -3,4 +3,5 @@ module.exports = {
   p2pPort: process.env.P2P_PORT || 6001,
   initialPeers: process.env.PEERS ? process.env.PEERS.split(',') : [],
   miningReward: 50,
-};
+  demoMode: process.env.DEMO || false,
+}

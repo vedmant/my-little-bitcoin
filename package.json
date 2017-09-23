@@ -7,6 +7,7 @@
     "start": "nodemon src/index.js",
     "start2": "cross-env HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 nodemon src/index.js",
     "start3": "cross-env HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6001,ws://localhost:6002 nodemon src/index.js",
+    "demo": "cross-env DEMO=true nodemon src/index.js",
     "dev": "node build/dev-server.js",
     "prod": "node build/build.js",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",

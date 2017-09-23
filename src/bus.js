@@ -1,5 +1,6 @@
-const EventEmitter = require('events');
+const EventEmitter = require('events')
 
-class Bus extends EventEmitter {}
+class Bus extends EventEmitter {
+}
 
-module.exports = new Bus();
+module.exports = new Bus()
