@@ -68,13 +68,14 @@ app.get('/v1/transaction/:index', (req, res) => res.json({transaction: store.cha
 app.get('/v1/mine-start', (req, res) => {
   store.mining = true
   bus.emit('mine-start')
-  if (!config.demoMode) mine()
+  if (! config.demoMode) mine()
   res.json('Ok')
 })
 
 app.get('/v1/mine-stop', (req, res) => {
-  store.mining = false
   if (config.demoMode) return res.status(403).send('Can not stop miner in Demo mode')
+  console.log('123')
+  store.mining = false
   bus.emit('mine-stop')
   res.json('Ok')
 })
