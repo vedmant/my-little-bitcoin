@@ -57,7 +57,7 @@ const mutations = {
   CLEAN_MEMPOOL (state, transactions) {
     transactions.forEach(tx => {
       let index = state.mempool.findIndex(t => t.id === tx.id)
-      if (index !== - 1) state.mempool.splice(index, 1)
+      if (index !== -1) state.mempool.splice(index, 1)
     })
   },
 
