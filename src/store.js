@@ -1,4 +1,4 @@
-const {BlockError, TransactionError} = require('./errors')
+const {TransactionError} = require('./errors')
 const bus = require('./bus')
 const config = require('./config')
 const {isChainValid} = require('./lib/chain')
@@ -8,7 +8,7 @@ const {generateKeyPair} = require('./lib/wallet')
 
 const store = {
 
-  difficulty: config.demoMode ? 100000000 : 100000, // The less value the bigger difficulty
+  difficulty: config.demoMode ? 100000000 : 10000, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
 

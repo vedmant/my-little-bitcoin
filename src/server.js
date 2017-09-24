@@ -2,7 +2,6 @@ const store = require('./store')
 const {mine} = require('./miner')
 const config = require('./config')
 const bus = require('./bus')
-const {BlockError, TransactionError} = require('./errors')
 const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -14,6 +13,9 @@ const io = require('socket.io')(http)
 
 const sockets = []
 
+/*
+ * Establish socket.io connection
+ */
 io.on('connection', function (socket) {
   sockets.push(socket)
   console.log('Websocket user connected')
@@ -21,8 +23,6 @@ io.on('connection', function (socket) {
     console.log('Websocket user disconnected')
   })
 })
-
-const broadcast = (type, message) => sockets.forEach(c => sockets.emit(type, message))
 
 /*
  * Broadacast messages
@@ -33,7 +33,6 @@ bus.on('transaction-added', transaction => io.emit('transaction-added', transact
 bus.on('balance-updated', balance => io.emit('balance-updated', balance))
 bus.on('mine-start', () => io.emit('mine-started'))
 bus.on('mine-stop', () => io.emit('mine-stopped'))
-
 
 /*
  * Parse JSON automatically
@@ -55,16 +54,28 @@ app.get('/v1/status', (req, res) => res.json({
   demoMode: config.demoMode,
 }))
 
+/*
+ * Send money to address
+ */
 app.get('/v1/send/:address/:amount', (req, res) => {
   res.json(store.send(req.params.address, req.params.amount))
 })
 
-app.get('/v1/balance/:address', (req, res) => res.json({balance: store.getBalanceForAddress(req.params.address)}))
-
+/*
+ * Get block by index
+ */
 app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b => b.index === req.params.index)}))
 
-app.get('/v1/transaction/:index', (req, res) => res.json({transaction: store.chain.find(b => b.index === req.params.index)}))
+/*
+ * Get transaction by hash
+ */
+app.get('/v1/transaction/:txid', (req, res) => res.json({transaction: store.chain.find(block => {
+  return block.transactions.find(tx => tx.id === req.params.txid)
+})}))
 
+/*
+ * Start mining
+ */
 app.get('/v1/mine-start', (req, res) => {
   store.mining = true
   bus.emit('mine-start')
@@ -72,9 +83,11 @@ app.get('/v1/mine-start', (req, res) => {
   res.json('Ok')
 })
 
+/*
+ * Stop mining
+ */
 app.get('/v1/mine-stop', (req, res) => {
   if (config.demoMode) return res.status(403).send('Can not stop miner in Demo mode')
-  console.log('123')
   store.mining = false
   bus.emit('mine-stop')
   res.json('Ok')

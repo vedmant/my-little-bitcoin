@@ -1,21 +1,28 @@
 # my-little-bitcoin
 
-> Sample naive cryptocurrency implementation on JavaScript for studying purpose
+> Sample naive cryptocurrency implementation on JavaScript with UI and simple blockchain explorer
 
 ## Features
 
-- Blocks mining and simple POW with reward
+- Blocks mining with reward and simple POW 
 - Create transactions and send amount to address using unspent outputs
 - Check address balance
 - Peer to peer connection, blockchain synchronization
 - Demo mode mining to reduce CPU load
+- User interface with real time data change
 
 ## TODO
 
+- Add send money to wallet modal
+- Add notification for recieved payment
+- Implement multiple wallets, add new wallet function
+- Add wallets page with latest transactions list
+- Add simple chain explorer UI
 - Add signature to outputs for transaction, validate signature
-- Multiple wallets
-- Front end UI
-- Implement peers blockhains conflict resolution
+- Implement peers blockhains conflict resolution, download only needed part of chain since split
+- Store unspent transactions in separate array to reduce CPU usage for larger chain
+- Add stats page with charts in UI, use separate chart module to cache chart data on server
+- Improve log messages
 
 ## Backend setup
 
@@ -23,17 +30,20 @@
 # install dependencies
 yarn
 
+# Start demo node
+npm run demo
+
 # Start first node
 npm start
 
 # Start second node
-npm start2
+npm run start2
 
 # Start third node
-npm start3
+npm run start3
 ```
 
-## Frontend build Setup
+## Frontend setup
 
 ``` bash
 # install dependencies
@@ -43,10 +53,10 @@ yarn
 npm run dev
 
 # build for production with minification
-npm run build
+npm run prod
 
 # build for production and view the bundle analyzer report
-npm run build --report
+npm run prod --report
 
 # run unit tests
 npm run unit

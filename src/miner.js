@@ -1,4 +1,4 @@
-const {spawn} = require('threads')
+const Worker = require('tiny-worker');
 const bus = require('./bus')
 const {calculateHash, createBlock} = require('./lib/block')
 const co = require('co')
@@ -67,11 +67,37 @@ function mineBlock (transactions, lastBlock, difficulty, address) {
  */
 function findBlockHash (block, difficulty) {
   return new Promise((resolve, reject) => {
+
+    /*
+     * Create worker to find hash in separate process
+     */
+    const worker = new Worker(function () {
+      const util = require(__dirname + '/src/lib/block')
+      self.onmessage = (e) => {
+        const {block, difficulty} = e.data
+        while (util.getDifficulty(block.hash) >= difficulty) {
+          block.nonce ++
+          block.hash = util.calculateHash(block)
+          if (block.nonce % 100000 === 0) console.log('100K hashes')
+        }
+        postMessage({type: 'block', block})
+        self.close()
+      }
+    })
+    worker.onmessage = (e) => {
+      removeListeners()
+      resolve(e.data.block)
+    }
+    worker.postMessage({block, difficulty})
+
+    /*
+     * Hadnle events to stop mining when needed
+     */
     const mineStop = () => {
       removeListeners()
       resolve(null)
       console.log('kill thread')
-      thread.kill()
+      worker.terminate()
     }
     // Listeners for stopping mining
     const blockAddedListener = b => {if (b.index >= block.index) mineStop()}
@@ -83,23 +109,6 @@ function findBlockHash (block, difficulty) {
     // If other process found the same block faster, kill current one
     bus.once('block-added', blockAddedListener)
     bus.once('mine-stop', mineStopListener)
-
-    // Use separate thread to not to block main thread
-    const thread = spawn(function ({block, difficulty, __dirname}, done, progress) {
-      const util = require(__dirname + '/lib/block')
-      while (util.getDifficulty(block.hash) >= difficulty) {
-        block.nonce ++
-        block.hash = util.calculateHash(block)
-        if (block.nonce % 100000 === 0) progress('100K hashes')
-      }
-      done(block)
-    })
-      .send({block, difficulty, __dirname})
-      .on('progress', progress => console.log(progress))
-      .on('message', block => {
-        removeListeners()
-        resolve(block)
-      })
   })
 }
 
