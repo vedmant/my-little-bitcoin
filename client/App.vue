@@ -3,9 +3,7 @@
     <spinner></spinner>
     <toast position="nw"></toast>
     <navbar></navbar>
-    <div class="container">
-      <router-view></router-view>
-    </div>
+    <router-view></router-view>
   </div>
 </template>
 
