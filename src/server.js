@@ -5,6 +5,7 @@ const bus = require('./bus')
 const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
+const {TransactionError, GeneralError} = require('./errors')
 
 const app = express()
 
@@ -33,6 +34,7 @@ bus.on('transaction-added', transaction => io.emit('transaction-added', transact
 bus.on('balance-updated', balance => io.emit('balance-updated', balance))
 bus.on('mine-start', () => io.emit('mine-started'))
 bus.on('mine-stop', () => io.emit('mine-stopped'))
+bus.on('recieved-funds', (data) => io.emit('recieved-funds', data))
 
 /*
  * Parse JSON automatically
@@ -47,9 +49,7 @@ app.use('/', express.static(path.resolve(__dirname, '../dist')))
 app.get('/v1/status', (req, res) => res.json({
   chain: store.chain.slice(Math.max(store.chain.length - 5, 0)),
   mempool: store.mempool.slice(Math.max(store.mempool.length - 5, 0)),
-  wallets: [
-    {name: 'Main', public: store.wallet.public, balance: store.getBalanceForAddress(store.wallet.public)},
-  ],
+  wallets: store.wallets.map(w => ({name: w.name, public: w.public, balance: store.getBalanceForAddress(w.public)})),
   mining: store.mining,
   demoMode: config.demoMode,
 }))
@@ -57,8 +57,13 @@ app.get('/v1/status', (req, res) => res.json({
 /*
  * Send money to address
  */
-app.get('/v1/send/:address/:amount', (req, res) => {
-  res.json(store.send(req.params.address, req.params.amount))
+app.get('/v1/send/:from/:to/:amount', (req, res) => {
+  try {
+    res.json(store.send(req.params.from, req.params.to , parseInt(req.params.amount)))
+  } catch (e) {
+    if (! e instanceof GeneralError && ! e instanceof TransactionError) throw e
+    res.status(403).send(e.message)
+  }
 })
 
 /*
@@ -79,7 +84,7 @@ app.get('/v1/transaction/:txid', (req, res) => res.json({transaction: store.chai
 app.get('/v1/mine-start', (req, res) => {
   store.mining = true
   bus.emit('mine-start')
-  if (! config.demoMode) mine()
+  if (! config.demoMode) mine(store.wallets[0])
   res.json('Ok')
 })
 

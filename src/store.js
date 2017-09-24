@@ -1,4 +1,4 @@
-const {TransactionError} = require('./errors')
+const {TransactionError, GeneralError} = require('./errors')
 const bus = require('./bus')
 const config = require('./config')
 const {isChainValid} = require('./lib/chain')
@@ -16,7 +16,12 @@ const store = {
 
   peers: config.initialPeers, // List of peers ['ip:port']
 
-  wallet: generateKeyPair(),
+  wallets: [
+    {name: 'Main', ...generateKeyPair()},
+    {name: 'Wallet 1', ...generateKeyPair()},
+    {name: 'Wallet 2', ...generateKeyPair()},
+    {name: 'Wallet 3', ...generateKeyPair()},
+  ],
 
   mining: !! config.demoMode,
 
@@ -65,10 +70,6 @@ const store = {
     return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0)
   },
 
-  getBalance () {
-    return this.getBalanceForAddress(this.wallet.public)
-  },
-
   /*
    * Actions
    */
@@ -86,6 +87,16 @@ const store = {
     // TODO: check if transaction or any intputs are not in mempool already
     this.mempool.push(transaction)
     if (emit) bus.emit('transaction-added', transaction)
+
+    // Notify about new transaction if one of our wallets recieved funds
+    let myWallet = null;
+    const outputToMyWallet = transaction.outputs.find(output => myWallet = this.wallets.find(w => w.public === output.address))
+    if (outputToMyWallet) bus.emit('recieved-funds', {
+      name: myWallet.name,
+      public: myWallet.public,
+      amount: outputToMyWallet.amount,
+      balance: this.getBalanceForAddress(myWallet.public),
+    })
     console.log('Added transaction to mempool ', transaction)
   },
 
@@ -109,23 +120,23 @@ const store = {
     this.peers.push(peer)
   },
 
-  send (toAddress, amount) {
+  send (from, toAddress, amount) {
+    const wallet = this.wallets.find(w => w.public === from)
+    if (! wallet) throw new GeneralError(`Wallet with addres ${from} not found`)
+    if (amount <= 0) throw new GeneralError(`Amount should be positive`)
+
     try {
-      const transaction = buildTransaction(this.wallet, toAddress, parseInt(amount), this.getUnspentForAddress(this.wallet.public))
+      const transaction = buildTransaction(wallet, toAddress, parseInt(amount), this.getUnspentForAddress(wallet.public))
       console.log(transaction)
       this.addTransaction(transaction)
-      bus.emit('balance-updated', {
-        address: this.wallet.public,
-        balance: this.getBalanceForAddress(this.wallet.public),
-      })
+      bus.emit('balance-updated', {public: wallet.public, balance: this.getBalanceForAddress(wallet.public)})
       return 'Transaction added to pool: ' + transaction.id
     } catch (e) {
       if (! e instanceof TransactionError) throw e
       console.error(e)
-      return e.message
+      throw new GeneralError(e.message)
     }
   },
 }
-
 
 module.exports = store

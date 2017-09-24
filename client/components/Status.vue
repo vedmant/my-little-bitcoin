@@ -39,19 +39,31 @@
           <strong slot="header">Wallets</strong>
           <b-list-group flush>
             <b-list-group-item :key="wallet.public" v-for="wallet in wallets">
-              <b-button size="sm" variant="warning" class="pull-right" @click="onShowSendModal(wallet)">Send</b-button>
               <router-link :to="'/wallet/' + wallet.public">{{ wallet.name }}: {{ wallet.public }}</router-link>
               <div>Balance: {{ wallet.balance }}</div>
             </b-list-group-item>
           </b-list-group>
+          <b-card-footer>
+            <b-button size="sm" variant="warning" class="pull-right" @click="onShowSendModal()">Send</b-button>
+          </b-card-footer>
         </b-card>
 
       </div>
 
       <b-modal v-model="showSendModal" title="Send amount" ok-title="Send" @ok="onSendSubmit">
         <b-form>
-          <b-form-group label="Address">
-            <b-form-input type="text" v-model="send.to" required placeholder="Address"></b-form-input>
+          <b-form-group label="From">
+            <b-form-select v-model="send.from" :options="wallets.map(w => ({value: w.public, text: w.name}))">
+              <template slot="first">
+                <option :value="null" disabled>Select a wallet</option>
+              </template>
+            </b-form-select>
+          </b-form-group>
+          <b-form-group label="To">
+            <b-form-input type="text" v-model="send.to" required placeholder="To"></b-form-input>
+          </b-form-group>
+          <b-form-group label="Amount">
+            <b-form-input type="text" v-model="send.amount" required placeholder="Amount"></b-form-input>
           </b-form-group>
         </b-form>
       </b-modal>
@@ -72,7 +84,8 @@ export default {
       showSendModal: false,
       send: {
         from: null,
-        to: null,
+        to: '',
+        amount: 0,
       },
     }
   },
@@ -91,24 +104,27 @@ export default {
   },
 
   methods: {
-    ...mapActions(['getState', 'startMine', 'stopMine']),
+    ...mapActions(['getState', 'startMine', 'stopMine', 'sendFunds']),
 
     moment () {
       return moment(...arguments)
     },
 
-    onShowSendModal (wallet) {
+    onShowSendModal () {
       this.showSendModal = true
-      this.send.from = wallet.public
+      this.send.from = this.wallets[0].public
     },
 
     onSendSubmit () {
-      console.log('send')
+      this.sendFunds(this.send)
+      this.send.to = ''
+      this.send.amount = 0
     },
 
     getTransactionMessage (transaction) {
       const from = transaction.inputs[0].address
-      const to = transaction.outputs.find(o => o.address !== from)
+      let to = transaction.outputs.find(o => o.address !== from)
+      if (!to) to = from
       const time = moment(transaction.time * 1000).format('YYYY-MM-DD h:mm:ss a')
 
       return `[${time}] Amount: ${to.amount}<br> from: ${from.substring(0, 20) + '...'} -> to: ${to.address.substring(0, 20) + '...'}`

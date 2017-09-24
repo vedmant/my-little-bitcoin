@@ -4,7 +4,7 @@ const store = require('./store')
 const {mine} = require('./miner')
 
 if (config.demoMode) {
-  mine()
+  mine(store.wallets[0])
 } else {
   require('./peers') // Connect to peers and recieve connections
 }

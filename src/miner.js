@@ -9,12 +9,12 @@ const config = require('./config')
 /**
  * Start mining
  */
-function mine () {
+function mine (wallet) {
   if (! store.mining) return
 
   co(function* () {
     while (store.mining) {
-      const block = yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, store.wallet.public)
+      const block = yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, wallet.public)
       if (! block) {
         // Someone mined block first, started mining new one
         continue
@@ -22,10 +22,7 @@ function mine () {
       try {
         store.addBlock(block)
         bus.emit('block-added-by-me', block)
-        bus.emit('balance-updated', {
-          address: store.wallet.public,
-          balance: store.getBalanceForAddress(store.wallet.public),
-        })
+        bus.emit('balance-updated', {public: wallet.public, balance: store.getBalanceForAddress(wallet.public)})
       } catch (e) {
         if (! e instanceof BlockError && ! e instanceof TransactionError) throw e
         console.error(e)

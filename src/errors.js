@@ -1,7 +1,7 @@
-class BlockError extends Error {
-}
+class BlockError extends Error {}
 
-class TransactionError extends Error {
-}
+class TransactionError extends Error {}
 
-module.exports = {BlockError, TransactionError}
+class GeneralError extends Error {}
+
+module.exports = {BlockError, TransactionError, GeneralError}

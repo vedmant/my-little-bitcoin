@@ -59,7 +59,7 @@ const mutations = {
   },
 
   UPDATE_BALANCE (state, balance) {
-    const index = state.wallets.findIndex(w => w.public === balance.address)
+    const index = state.wallets.findIndex(w => w.public === balance.public)
     if (index === -1) return console.error('Cant find wallet to update balance')
     state.wallets[index].balance = balance.balance
   },
@@ -70,6 +70,12 @@ const mutations = {
 
   MINE_STOP (state) {
     state.mining = false
+  },
+
+  RECIEVED_FUNDS (state, data) {
+    const index = state.wallets.findIndex(w => w.public === data.public)
+    if (index === -1) return console.error('Cant find wallet to update balance')
+    state.wallets[index].balance = data.balance
   },
 }
 
@@ -96,6 +102,11 @@ const actions = {
     }).catch(e => commit('ERROR', e))
   },
 
+  sendFunds ({commit}, {from, to, amount}) {
+    return co(function* () {
+      yield Axios.get(`/v1/send/${from}/${to}/${amount}`)
+    }).catch(e => commit('ERROR', e))
+  },
 }
 
 const debug = process.env.NODE_ENV !== 'production'
