@@ -4469,7 +4469,7 @@ mute-stream@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.5.tgz#8fbfabb0a98a253d3184331f9e8deb7372fac6c0"
 
-nan@^2.2.1, nan@^2.3.0, nan@^2.3.2, nan@^2.4.0:
+nan@^2.2.1, nan@^2.3.0, nan@^2.3.2:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.7.0.tgz#d95bf721ec877e08db276ed3fc6eb78f9083ad46"
 
@@ -6970,13 +6970,6 @@ webpack@^2.6.1:
     watchpack "^1.3.1"
     webpack-sources "^1.0.1"
     yargs "^6.0.0"
-
-webworker-threads@^0.7.13:
-  version "0.7.13"
-  resolved "https://registry.yarnpkg.com/webworker-threads/-/webworker-threads-0.7.13.tgz#c84b18b6ba24125bb9d37342e44deb815162fb83"
-  dependencies:
-    bindings "^1.2.1"
-    nan "^2.4.0"
 
 whet.extend@~0.9.9:
   version "0.9.9"
