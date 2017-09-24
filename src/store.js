@@ -8,7 +8,7 @@ const {generateKeyPair} = require('./lib/wallet')
 
 const store = {
 
-  difficulty: config.demoMode ? 100000000 : 10000, // The less value the bigger difficulty
+  difficulty: config.demoMode ? 100000000 : 10000 * 1, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
 

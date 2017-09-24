@@ -5,13 +5,13 @@ const socket = io()
 
 socket.on('block-added', (block) => {
   store.commit('ADD_BLOCK', block)
-  store.commit('CLEAN_MEMPOOL')
+  store.commit('CLEAN_MEMPOOL', block.transactions)
 })
 
 socket.on('block-added-by-me', (block) => {
   store.dispatch('addToastMessage', {text: `You mined a new block, index: ${block.index}`, type: 'success'})
   store.commit('ADD_BLOCK', block)
-  store.commit('CLEAN_MEMPOOL')
+  store.commit('CLEAN_MEMPOOL', block.transactions)
 })
 
 socket.on('transaction-added', (transaction) => store.commit('ADD_TRANSACTION', transaction))
