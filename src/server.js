@@ -59,9 +59,9 @@ app.get('/v1/status', (req, res) => res.json({
  */
 app.get('/v1/send/:from/:to/:amount', (req, res) => {
   try {
-    res.json(store.send(req.params.from, req.params.to , parseInt(req.params.amount)))
+    res.json(store.send(req.params.from, req.params.to, parseInt(req.params.amount)))
   } catch (e) {
-    if (! e instanceof GeneralError && ! e instanceof TransactionError) throw e
+    if (! (e instanceof GeneralError) && ! (e instanceof TransactionError)) throw e
     res.status(403).send(e.message)
   }
 })
@@ -99,6 +99,5 @@ app.get('/v1/mine-stop', (req, res) => {
 })
 
 http.listen(config.httpPort, 'localhost', () => console.log('Listening http on port: ' + config.httpPort))
-
 
 module.exports = app

@@ -90,7 +90,6 @@ function createBlock (transactions, lastBlock, address) {
   return block
 }
 
-
 /**
  * Get hash difficulty
  *
@@ -100,6 +99,5 @@ function createBlock (transactions, lastBlock, address) {
 function getDifficulty (hash) {
   return parseInt(hash.substring(0, 8), 16)
 }
-
 
 module.exports = {checkBlock, calculateHash, makeGenesisBlock, createBlock, getDifficulty}

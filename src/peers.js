@@ -41,7 +41,6 @@ function initMessageHandler (connection) {
 
     // TODO: validate requests
     switch (message.type) {
-
       case 'get-blocks-after':
         write(connection, {type: 'blocks-after', blocks: store.blocksAfter(message.index + 1)})
         break
@@ -51,7 +50,7 @@ function initMessageHandler (connection) {
           try {
             store.addBlock(block)
           } catch (e) {
-            if (! e instanceof BlockError && ! e instanceof TransactionError) throw e
+            if (! (e instanceof BlockError) && ! (e instanceof TransactionError)) throw e
           }
         })
         break
@@ -65,7 +64,7 @@ function initMessageHandler (connection) {
           const block = store.addBlock(message.block)
           bus.emit('block-added', block)
         } catch (e) {
-          if (! e instanceof BlockError && ! e instanceof TransactionError) throw e
+          if (! (e instanceof BlockError) && ! (e instanceof TransactionError)) throw e
           write(connection, {type: 'error', message: e.message})
         }
         break
@@ -94,7 +93,7 @@ function initErrorHandler (connection, index) {
 
     // Retry initial connections 3 times
     if (connection.initial && connection.retries < 4) {
-      connection.retries ++
+      connection.retries++
       console.log(`Retry in 3 secs, retries: ${connection.retries}`)
       connection.timeoutId = setTimeout(() => connectToPeer(connection, index), 3000)
     }
@@ -153,7 +152,7 @@ function connectToPeer (connection, index = null) {
     // Retry initial connections 3 times
     if (connection.initial && connection.retries < 4) {
       console.log(`Retry in 3 secs, retries: ${connection.retries}`)
-      connection.retries ++
+      connection.retries++
       connection.timeoutId = setTimeout(() => {
         connectToPeer(connection, index)
       }, 3000)

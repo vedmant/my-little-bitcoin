@@ -18,12 +18,11 @@ function generateKeyPair () {
 }
 
 function signHash (privateKey, hash) {
-  return secp256k1.sign(new Buffer(hash, 'hex'), new Buffer(privateKey, 'hex')).signature.toString('base64')
+  return secp256k1.sign(Buffer.from(hash, 'hex'), Buffer.from(privateKey, 'hex')).signature.toString('base64')
 }
 
 function verifySignature (address, signature, hash) {
-  return secp256k1.verify(new Buffer(hash, 'hex'), new Buffer(signature, 'base64'), bs58.decode(address))
+  return secp256k1.verify(Buffer.from(hash, 'hex'), Buffer.from(signature, 'base64'), bs58.decode(address))
 }
-
 
 module.exports = {generateKeyPair, signHash, verifySignature}

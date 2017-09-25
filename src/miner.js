@@ -1,4 +1,4 @@
-const Worker = require('tiny-worker');
+const Worker = require('tiny-worker')
 const bus = require('./bus')
 const {calculateHash, createBlock} = require('./lib/block')
 const co = require('co')
@@ -24,7 +24,7 @@ function mine (wallet) {
         bus.emit('block-added-by-me', block)
         bus.emit('balance-updated', {public: wallet.public, balance: store.getBalanceForAddress(wallet.public)})
       } catch (e) {
-        if (! e instanceof BlockError && ! e instanceof TransactionError) throw e
+        if (! (e instanceof BlockError) && ! (e instanceof TransactionError)) throw e
         console.error(e)
       }
     }
@@ -64,16 +64,15 @@ function mineBlock (transactions, lastBlock, difficulty, address) {
  */
 function findBlockHash (block, difficulty) {
   return new Promise((resolve, reject) => {
-
     /*
      * Create worker to find hash in separate process
      */
     const worker = new Worker(function () {
-      const util = require(__dirname + '/src/lib/block')
+      const util = require(require('path').resolve(__dirname, 'src/lib/block'))
       self.onmessage = (e) => {
         const {block, difficulty} = e.data
         while (util.getDifficulty(block.hash) >= difficulty) {
-          block.nonce ++
+          block.nonce++
           block.hash = util.calculateHash(block)
           if (block.nonce % 100000 === 0) console.log('100K hashes')
         }
@@ -97,7 +96,7 @@ function findBlockHash (block, difficulty) {
       worker.terminate()
     }
     // Listeners for stopping mining
-    const blockAddedListener = b => {if (b.index >= block.index) mineStop()}
+    const blockAddedListener = b => { if (b.index >= block.index) mineStop() }
     const mineStopListener = b => mineStop
     const removeListeners = () => {
       bus.removeListener('block-added', blockAddedListener)
@@ -108,6 +107,5 @@ function findBlockHash (block, difficulty) {
     bus.once('mine-stop', mineStopListener)
   })
 }
-
 
 module.exports = {mine, mineBlock}

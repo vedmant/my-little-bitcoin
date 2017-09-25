@@ -1,8 +1,7 @@
-const {makeGenesisBlock, isBlockValid, isDataValid} = require('./block')
-const fs = require('fs')
+const {isBlockValid} = require('./block')
 
 function isChainValid (chain, difficulty) {
-  for (let i = 1; i < chain.length; i ++) {
+  for (let i = 1; i < chain.length; i++) {
     if (! isBlockValid(chain[i - 1], chain[i], difficulty)) {
       return false
     }

@@ -89,14 +89,16 @@ const store = {
     if (emit) bus.emit('transaction-added', transaction)
 
     // Notify about new transaction if one of our wallets recieved funds
-    let myWallet = null;
+    let myWallet = null
     const outputToMyWallet = transaction.outputs.find(output => myWallet = this.wallets.find(w => w.public === output.address))
-    if (outputToMyWallet) bus.emit('recieved-funds', {
-      name: myWallet.name,
-      public: myWallet.public,
-      amount: outputToMyWallet.amount,
-      balance: this.getBalanceForAddress(myWallet.public),
-    })
+    if (outputToMyWallet) {
+      bus.emit('recieved-funds', {
+        name: myWallet.name,
+        public: myWallet.public,
+        amount: outputToMyWallet.amount,
+        balance: this.getBalanceForAddress(myWallet.public),
+      })
+    }
     console.log('Added transaction to mempool ', transaction)
   },
 
@@ -132,7 +134,7 @@ const store = {
       bus.emit('balance-updated', {public: wallet.public, balance: this.getBalanceForAddress(wallet.public)})
       return 'Transaction added to pool: ' + transaction.id
     } catch (e) {
-      if (! e instanceof TransactionError) throw e
+      if (! (e instanceof TransactionError)) throw e
       console.error(e)
       throw new GeneralError(e.message)
     }

@@ -62,8 +62,7 @@ function checkTransaction (transaction, unspent) {
 
   // Check if inputs are in unspent list
   transaction.inputs.forEach(function (input) {
-    if (! unspent.find(out => out.tx === input.tx && out.index === input.index))
-      throw new TransactionError('Input has been already spent: ' + input.tx)
+    if (! unspent.find(out => out.tx === input.tx && out.index === input.index)) { throw new TransactionError('Input has been already spent: ' + input.tx) }
   })
 
   if (transaction.reward) {
@@ -72,9 +71,8 @@ function checkTransaction (transaction, unspent) {
     if (transaction.outputs[0].amount !== miningReward) throw new TransactionError(`Mining reward must be exactly: ${miningReward}`)
   } else {
     // For normalt transaction check if total output amount equals input amount
-    if (transaction.inputs.reduce((acc, input) => acc + input.amount, 0)
-      !== transaction.outputs.reduce((acc, output) => acc + output.amount, 0))
-      throw new TransactionError('Input and output amounts dont match')
+    if (transaction.inputs.reduce((acc, input) => acc + input.amount, 0) !==
+      transaction.outputs.reduce((acc, output) => acc + output.amount, 0)) { throw new TransactionError('Input and output amounts dont match') }
   }
 }
 
@@ -185,7 +183,6 @@ function buildTransaction (wallet, toAddress, amount, unspent) {
 
   return createTransaction(inputs, outputs)
 }
-
 
 module.exports = {
   checkTransactions,
