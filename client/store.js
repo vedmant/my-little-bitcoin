@@ -23,6 +23,8 @@ const state = {
 
   demoMode: false,
 
+  block: {},
+
 }
 
 const mutations = {
@@ -38,6 +40,15 @@ const mutations = {
     state.wallets = status.wallets
     state.mining = status.mining
     state.demoMode = status.demoMode
+  },
+
+  GET_BLOCK (state) {
+    state.loading = true
+  },
+
+  GET_BLOCK_OK (state, block) {
+    state.loading = false
+    state.block = block
   },
 
   ERROR (state) {
@@ -90,6 +101,15 @@ const actions = {
     return co(function* () {
       const resp = yield Axios.get('/v1/status')
       commit('GET_STATUS_OK', resp.data)
+    }).catch(e => commit('ERROR', e))
+  },
+
+  getBlock ({commit}, index) {
+    commit('GET_BLOCK')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/block/' + index)
+      commit('GET_BLOCK_OK', resp.data.block)
     }).catch(e => commit('ERROR', e))
   },
 

@@ -34,6 +34,7 @@ module.exports = {
       'overrides': {
         '++': false,
         '--': false,
+        '-':false,
       },
     }],
   }

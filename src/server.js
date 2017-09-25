@@ -69,7 +69,7 @@ app.get('/v1/send/:from/:to/:amount', (req, res) => {
 /*
  * Get block by index
  */
-app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b => b.index === req.params.index)}))
+app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b => b.index === parseInt(req.params.index))}))
 
 /*
  * Get transaction by hash

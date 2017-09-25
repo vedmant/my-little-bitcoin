@@ -39,8 +39,8 @@
           <strong slot="header">Wallets</strong>
           <b-list-group flush>
             <b-list-group-item :key="wallet.public" v-for="wallet in wallets">
-              <router-link :to="'/wallet/' + wallet.public">{{ wallet.name }}: {{ wallet.public }}</router-link>
-              <div>Balance: {{ wallet.balance }}</div>
+              <router-link :to="'/address/' + wallet.public">{{ wallet.name }}: {{ wallet.public }}</router-link>
+              <div>Balance: {{ wallet.balance }} MLB</div>
             </b-list-group-item>
           </b-list-group>
           <b-card-footer>
@@ -124,7 +124,7 @@ export default {
     getTransactionMessage (transaction) {
       const from = transaction.inputs[0].address
       let to = transaction.outputs.find(o => o.address !== from)
-      if (!to) to = from
+      if (! to) to = from
       const time = moment(transaction.time * 1000).format('YYYY-MM-DD h:mm:ss a')
 
       return `[${time}] Amount: ${to.amount}<br> from: ${from.substring(0, 20) + '...'} -> to: ${to.address.substring(0, 20) + '...'}`
