@@ -8,23 +8,15 @@ import toast from './vuex/toast'
 Vue.use(Vuex)
 
 const state = {
-
   loading: false,
-
+  time: [],
   chain: [],
-
   mempool: [],
-
   wallets: [],
-
   stats: [],
-
   mining: false,
-
   demoMode: false,
-
   block: {},
-
 }
 
 const mutations = {
@@ -35,6 +27,7 @@ const mutations = {
 
   GET_STATUS_OK (state, status) {
     state.loading = false
+    state.time = status.time
     state.chain = status.chain
     state.mempool = status.mempool
     state.wallets = status.wallets

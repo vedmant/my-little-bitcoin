@@ -11,14 +11,27 @@
     </div>
     <hr>
 
-    <b-card no-body class="mb-5">
-      <strong slot="header">Last blocks</strong>
-      <b-list-group v-if="chain.length" flush>
-        <b-list-group-item v-for="block in chain" :key="block.index" :to="'/block/' + block.index" class="list-group-item">{{ block.index }}: [{{ moment(block.time * 1000).format('YYYY-MM-DD h:mm:ss a') }}] - {{ block.hash }} - {{ block.transactions.length }} transactions
-        </b-list-group-item>
-      </b-list-group>
-      <b-card-body v-else>Loading</b-card-body>
-    </b-card>
+    <h5>Lastest blocks</h5>
+    <div class="table-responsive mb-5">
+      <table class="table table-striped table-light">
+        <tbody>
+        <tr>
+          <th>Height</th>
+          <th>Age</th>
+          <th>Transactions</th>
+          <th>Total Sent</th>
+          <th>Size</th>
+        </tr>
+        <tr v-for="block in chain">
+          <td><router-link :to="'/block/' + block.index">{{ block.index }}</router-link></td>
+          <td>{{ moment(block.time * 1000).from(time * 1000) }}</td>
+          <td>{{ block.transactions.length }}</td>
+          <td>{{ totalOutput(block) }}</td>
+          <td>{{ Number(JSON.stringify(block).length / 1024).toFixed(2) }} kB</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="row">
       <div class="col-sm-6">
@@ -100,6 +113,7 @@ export default {
       mempool: s => s.mempool,
       wallets: s => s.wallets,
       mining: s => s.mining,
+      time: s => s.time,
     }),
   },
 
@@ -108,6 +122,10 @@ export default {
 
     moment () {
       return moment(...arguments)
+    },
+
+    totalOutput (block) {
+      return block.transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, out) => acc + out.amount, 0), 0)
     },
 
     onShowSendModal () {

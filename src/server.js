@@ -47,6 +47,7 @@ app.use('/', express.static(path.resolve(__dirname, '../dist')))
  * Get short blockchain status
  */
 app.get('/v1/status', (req, res) => res.json({
+  time: Math.floor(new Date().getTime() / 1000),
   chain: store.chain.slice(Math.max(store.chain.length - 5, 0)),
   mempool: store.mempool.slice(Math.max(store.mempool.length - 5, 0)),
   wallets: store.wallets.map(w => ({name: w.name, public: w.public, balance: store.getBalanceForAddress(w.public)})),
