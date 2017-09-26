@@ -45,6 +45,11 @@ const store = {
     return transactions
   },
 
+  getTransactionsForAddress (address) {
+    return this.getTransactions(false).filter(tx => tx.inputs.find(i => i.address === address) ||
+      tx.outputs.find(o => o.address === address))
+  },
+
   getUnspent (withMempool = false) {
     const transactions = this.getTransactions(withMempool)
 

@@ -73,11 +73,26 @@ app.get('/v1/send/:from/:to/:amount', (req, res) => {
 app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b => b.index === parseInt(req.params.index))}))
 
 /*
- * Get transaction by hash
+ * Get address
  */
-app.get('/v1/transaction/:txid', (req, res) => res.json({transaction: store.chain.find(block => {
-  return block.transactions.find(tx => tx.id === req.params.txid)
-})}))
+app.get('/v1/address/:address', (req, res) => {
+  const transactions = store.getTransactionsForAddress(req.params.address)
+  return res.json({
+      balance: store.getBalanceForAddress(req.params.address),
+      transactions: transactions,
+      totalRecieved: transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, o) => acc + (o.address === req.params.address ? o.amount : 0), 0), 0)
+    })
+  }
+)
+
+/*
+ * Get transaction by txid
+ */
+app.get('/v1/transaction/:id', (req, res) => {
+  const block = store.chain.find(block => block.transactions.find(tx => tx.id === req.params.id))
+  if (! block) return res.status(404).send('Cant find transaction');
+  res.json({transaction: block.transactions.find(tx => tx.id === req.params.id), block: block})
+})
 
 /*
  * Start mining

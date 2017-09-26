@@ -17,6 +17,8 @@ const state = {
   mining: false,
   demoMode: false,
   block: {},
+  address: {},
+  transaction: {transaction: {}, block: {}},
 }
 
 const mutations = {
@@ -33,15 +35,6 @@ const mutations = {
     state.wallets = status.wallets
     state.mining = status.mining
     state.demoMode = status.demoMode
-  },
-
-  GET_BLOCK (state) {
-    state.loading = true
-  },
-
-  GET_BLOCK_OK (state, block) {
-    state.loading = false
-    state.block = block
   },
 
   ERROR (state) {
@@ -84,6 +77,33 @@ const mutations = {
     if (index === -1) return console.error('Cant find wallet to update balance')
     state.wallets[index].balance = data.balance
   },
+
+  GET_BLOCK (state) {
+    state.loading = true
+  },
+
+  GET_BLOCK_OK (state, block) {
+    state.loading = false
+    state.block = block
+  },
+
+  GET_ADDRESS (state) {
+    state.loading = true
+  },
+
+  GET_ADDRESS_OK (state, address) {
+    state.loading = false
+    state.address = address
+  },
+
+  GET_TRANSACTION (state) {
+    state.loading = true
+  },
+
+  GET_TRANSACTION_OK (state, transaction) {
+    state.loading = false
+    state.transaction = transaction
+  },
 }
 
 const actions = {
@@ -94,15 +114,6 @@ const actions = {
     return co(function* () {
       const resp = yield Axios.get('/v1/status')
       commit('GET_STATUS_OK', resp.data)
-    }).catch(e => commit('ERROR', e))
-  },
-
-  getBlock ({commit}, index) {
-    commit('GET_BLOCK')
-
-    return co(function* () {
-      const resp = yield Axios.get('/v1/block/' + index)
-      commit('GET_BLOCK_OK', resp.data.block)
     }).catch(e => commit('ERROR', e))
   },
 
@@ -121,6 +132,33 @@ const actions = {
   sendFunds ({commit}, {from, to, amount}) {
     return co(function* () {
       yield Axios.get(`/v1/send/${from}/${to}/${amount}`)
+    }).catch(e => commit('ERROR', e))
+  },
+
+  getBlock ({commit}, index) {
+    commit('GET_BLOCK')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/block/' + index)
+      commit('GET_BLOCK_OK', resp.data.block)
+    }).catch(e => commit('ERROR', e))
+  },
+
+  getAddress ({commit}, address) {
+    commit('GET_ADDRESS')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/address/' + address)
+      commit('GET_ADDRESS_OK', resp.data)
+    }).catch(e => commit('ERROR', e))
+  },
+
+  getTransaction ({commit}, id) {
+    commit('GET_TRANSACTION')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/transaction/' + id)
+      commit('GET_TRANSACTION_OK', resp.data)
     }).catch(e => commit('ERROR', e))
   },
 }
