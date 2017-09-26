@@ -1,3 +1,4 @@
+const debug = require('debug')('app:miner')
 const Worker = require('tiny-worker')
 const bus = require('./bus')
 const {calculateHash, createBlock} = require('./lib/block')
@@ -69,7 +70,7 @@ function findBlockHash (block, difficulty) {
      */
     const worker = new Worker(function () {
       const util = require(require('path').resolve(__dirname, 'src/lib/block'))
-      const debug = require('debug')('my-little-bitcoin')
+      const debug = require('debug')('app:miner')
       self.onmessage = (e) => {
         const {block, difficulty} = e.data
         while (util.getDifficulty(block.hash) >= difficulty) {

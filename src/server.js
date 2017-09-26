@@ -1,3 +1,4 @@
+const debug = require('debug')('app:server')
 const store = require('./store')
 const {mine} = require('./miner')
 const config = require('./config')
@@ -12,29 +13,31 @@ const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
-const sockets = []
-
 /*
  * Establish socket.io connection
  */
 io.on('connection', function (socket) {
-  sockets.push(socket)
   debug('Websocket user connected')
   socket.on('disconnect', function () {
     debug('Websocket user disconnected')
   })
 })
 
+function broadcast (type, data) {
+  debug(`Broadcast WS message: ${type}`)
+  io.emit(type, data)
+}
+
 /*
  * Broadacast messages
  */
-bus.on('block-added', block => io.emit('block-added', block))
-bus.on('block-added-by-me', block => io.emit('block-added-by-me', block))
-bus.on('transaction-added', transaction => io.emit('transaction-added', transaction))
-bus.on('balance-updated', balance => io.emit('balance-updated', balance))
-bus.on('mine-start', () => io.emit('mine-started'))
-bus.on('mine-stop', () => io.emit('mine-stopped'))
-bus.on('recieved-funds', (data) => io.emit('recieved-funds', data))
+bus.on('block-added', block => broadcast('block-added', block))
+bus.on('block-added-by-me', block => broadcast('block-added-by-me', block))
+bus.on('transaction-added', transaction => broadcast('transaction-added', transaction))
+bus.on('balance-updated', balance => broadcast('balance-updated', balance))
+bus.on('mine-start', () => broadcast('mine-started'))
+bus.on('mine-stop', () => broadcast('mine-stopped'))
+bus.on('recieved-funds', (data) => broadcast('recieved-funds', data))
 
 /*
  * Parse JSON automatically
@@ -79,7 +82,7 @@ app.get('/v1/address/:address', (req, res) => {
   const transactions = store.getTransactionsForAddress(req.params.address)
   return res.json({
       balance: store.getBalanceForAddress(req.params.address),
-      transactions: transactions,
+      transactions: transactions.slice(Math.max(transactions.length - 100, 0)),
       totalRecieved: transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, o) => acc + (o.address === req.params.address ? o.amount : 0), 0), 0)
     })
   }

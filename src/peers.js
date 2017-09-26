@@ -1,3 +1,4 @@
+const debug = require('debug')('app:peers')
 const store = require('./store')
 const config = require('./config')
 const bus = require('./bus')

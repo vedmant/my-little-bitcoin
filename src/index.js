@@ -1,4 +1,4 @@
-global.debug = require('debug')('my-little-bitcoin')
+global.debug = require('debug')('app:global')
 require('./server') // HTTP server and Web sockets
 const config = require('./config')
 const store = require('./store')

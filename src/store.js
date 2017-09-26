@@ -1,3 +1,4 @@
+const debug = require('debug')('app:store')
 const {TransactionError, GeneralError} = require('./errors')
 const bus = require('./bus')
 const config = require('./config')
