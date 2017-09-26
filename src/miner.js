@@ -44,7 +44,7 @@ function mineBlock (transactions, lastBlock, difficulty, address) {
   const block = createBlock(transactions, lastBlock, address)
   block.hash = calculateHash(block)
 
-  console.log(`Started mining block ${block.index}`)
+  debug(`Started mining block ${block.index}`)
 
   return new Promise((resolve, reject) => {
     if (config.demoMode) {
@@ -69,12 +69,13 @@ function findBlockHash (block, difficulty) {
      */
     const worker = new Worker(function () {
       const util = require(require('path').resolve(__dirname, 'src/lib/block'))
+      const debug = require('debug')('my-little-bitcoin')
       self.onmessage = (e) => {
         const {block, difficulty} = e.data
         while (util.getDifficulty(block.hash) >= difficulty) {
           block.nonce++
           block.hash = util.calculateHash(block)
-          if (block.nonce % 100000 === 0) console.log('100K hashes')
+          if (block.nonce % 100000 === 0) debug('100K hashes')
         }
         postMessage({type: 'block', block})
         self.close()
@@ -92,7 +93,7 @@ function findBlockHash (block, difficulty) {
     const mineStop = () => {
       removeListeners()
       resolve(null)
-      console.log('kill thread')
+      debug('kill thread')
       worker.terminate()
     }
     // Listeners for stopping mining

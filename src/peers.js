@@ -7,11 +7,11 @@ const {BlockError, TransactionError} = require('./errors')
 const connections = store.peers.map(peer => ({url: peer, ws: null, timeoutId: null, retries: 0, initial: true}))
 
 const write = (connection, message) => {
-  console.log(`Send message: ${message.type} to: ${connection.url}`)
+  debug(`Send message: ${message.type} to: ${connection.url}`)
   connection.ws.send(JSON.stringify(message))
 }
 const broadcast = (message) => {
-  console.log(`Broadcast message: ${message.type}`)
+  debug(`Broadcast message: ${message.type}`)
   connections.filter(c => c.ws).forEach(c => write(c, message))
 }
 
@@ -37,7 +37,7 @@ function initMessageHandler (connection) {
       console.error('Failed to json parse recieved data from peer')
     }
 
-    console.log(`Received message: ${message.type}`)
+    debug(`Received message: ${message.type}`)
 
     // TODO: validate requests
     switch (message.type) {
@@ -88,13 +88,13 @@ function initMessageHandler (connection) {
  */
 function initErrorHandler (connection, index) {
   const closeConnection = (connection, index) => {
-    console.log(`Connection broken to: ${connection.url === undefined ? 'incoming' : connection.url}`)
+    debug(`Connection broken to: ${connection.url === undefined ? 'incoming' : connection.url}`)
     connection.ws = null
 
     // Retry initial connections 3 times
     if (connection.initial && connection.retries < 4) {
       connection.retries++
-      console.log(`Retry in 3 secs, retries: ${connection.retries}`)
+      debug(`Retry in 3 secs, retries: ${connection.retries}`)
       connection.timeoutId = setTimeout(() => connectToPeer(connection, index), 3000)
     }
   }
@@ -118,11 +118,11 @@ function initConnection (ws, req = null, index = null) {
     url = req.connection.remoteAddress
     connection = {url, ws, timeoutId: null, retries: 0, initial: false}
     connections.push(connection)
-    console.log(`Peer ${url} connected to us`)
+    debug(`Peer ${url} connected to us`)
   } else {
     // We connected to peer
     connection = connections[index]
-    console.log(`Connected to peer ${url}`)
+    debug(`Connected to peer ${url}`)
   }
   connection.retries = 0
 
@@ -147,11 +147,11 @@ function connectToPeer (connection, index = null) {
   connection.ws = new WebSocket(connection.url)
   connection.ws.on('open', () => initConnection(connection.ws, null, index))
   connection.ws.on('error', () => {
-    console.log(`Connection failed to ${connection.url}`)
+    debug(`Connection failed to ${connection.url}`)
 
     // Retry initial connections 3 times
     if (connection.initial && connection.retries < 4) {
-      console.log(`Retry in 3 secs, retries: ${connection.retries}`)
+      debug(`Retry in 3 secs, retries: ${connection.retries}`)
       connection.retries++
       connection.timeoutId = setTimeout(() => {
         connectToPeer(connection, index)
@@ -166,4 +166,4 @@ const server = new WebSocket.Server({port: config.p2pPort})
 
 server.on('connection', (ws, req) => initConnection(ws, req))
 
-console.log('listening websocket p2p port on: ' + config.p2pPort)
+debug('listening websocket p2p port on: ' + config.p2pPort)

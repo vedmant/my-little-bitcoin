@@ -19,9 +19,9 @@ const sockets = []
  */
 io.on('connection', function (socket) {
   sockets.push(socket)
-  console.log('Websocket user connected')
+  debug('Websocket user connected')
   socket.on('disconnect', function () {
-    console.log('Websocket user disconnected')
+    debug('Websocket user disconnected')
   })
 })
 
@@ -114,6 +114,6 @@ app.get('/v1/mine-stop', (req, res) => {
   res.json('Ok')
 })
 
-http.listen(config.httpPort, 'localhost', () => console.log('Listening http on port: ' + config.httpPort))
+http.listen(config.httpPort, 'localhost', () => debug('Listening http on port: ' + config.httpPort))
 
 module.exports = app

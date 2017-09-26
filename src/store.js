@@ -83,7 +83,7 @@ const store = {
     checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent())
     this.chain.push(block) // Push block to the chain
     this.cleanMempool(block.transactions) // Clean mempool
-    console.log(`Added block ${block.index} to the chain`)
+    debug(`Added block ${block.index} to the chain`)
     return block
   },
 
@@ -104,7 +104,7 @@ const store = {
         balance: this.getBalanceForAddress(myWallet.public),
       })
     }
-    console.log('Added transaction to mempool ', transaction)
+    debug('Added transaction to mempool ', transaction)
   },
 
   cleanMempool (transactions) {
@@ -134,7 +134,7 @@ const store = {
 
     try {
       const transaction = buildTransaction(wallet, toAddress, parseInt(amount), this.getUnspentForAddress(wallet.public))
-      console.log(transaction)
+      debug(transaction)
       this.addTransaction(transaction)
       bus.emit('balance-updated', {public: wallet.public, balance: this.getBalanceForAddress(wallet.public)})
       return 'Transaction added to pool: ' + transaction.id
