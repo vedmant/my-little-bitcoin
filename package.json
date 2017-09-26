@@ -28,6 +28,7 @@
     "crypto-js": "^3.1.9-1",
     "debug": "^3.1.0",
     "express": "^4.15.4",
+    "express-winston": "^2.4.0",
     "joi": "^11.0.1",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
@@ -40,6 +41,7 @@
     "vue": "^2.4.4",
     "vue-router": "^2.7.0",
     "vuex": "^2.4.0",
+    "winston": "^2.3.1",
     "ws": "^3.2.0"
   },
   "devDependencies": {

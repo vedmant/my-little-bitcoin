@@ -6,6 +6,8 @@ const bus = require('./bus')
 const path = require('path')
 const express = require('express')
 const bodyParser = require('body-parser')
+const expressWinston = require('express-winston')
+const winston = require('winston')
 const {TransactionError, GeneralError} = require('./errors')
 
 const app = express()
@@ -43,6 +45,11 @@ bus.on('recieved-funds', (data) => broadcast('recieved-funds', data))
  * Parse JSON automatically
  */
 app.use(bodyParser.json())
+
+// Add winston logger
+app.use(expressWinston.logger({transports: [new winston.transports.File({
+  filename: 'logs/express.log', json: false, maxsize: 1024 * 1024, maxFiles: 100, tailable: true,
+})]}))
 
 app.use('/', express.static(path.resolve(__dirname, '../dist')))
 
