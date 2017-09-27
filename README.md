@@ -6,18 +6,19 @@
 
 - Blocks mining with reward and simple POW 
 - Create transactions and send amount to address using unspent outputs
-- Check address balance
 - Peer to peer connection, blockchain synchronization
+- Multiple wallets
 - Demo mode mining to reduce CPU load
 - User interface with real time data change
+- Status page with latest blocks, current mempool, wallets list with balances
+- Chain explorer pages for block, address, transaction
+- Descriptive debug messages in develpment mode using debug package
+- Server requests logs with winston
 
 ## TODO
 
-- Add send money to wallet modal
-- Add notification for recieved payment
-- Implement multiple wallets, add new wallet function
 - Add wallets page with latest transactions list
-- Add simple chain explorer UI
+- Implement add new wallet function
 - Add signature to outputs for transaction, validate signature
 - Implement peers blockhains conflict resolution, download only needed part of chain since split
 - Store unspent transactions in separate array to reduce CPU usage for larger chain
