@@ -1,0 +1,10 @@
+apps:
+  - name: mlb
+    script: src/index.js
+    exec_mode: fork
+    error_file: logs/app.log
+    max_memory_restart: 50M
+    env:
+      DEMO: true
+      NODE_ENV: production
+      HTTP_PORT: 3001
