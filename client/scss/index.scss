@@ -9,6 +9,10 @@
   font-size: 90%;
 }
 
+.vertical-middle {
+  vertical-align: middle;
+}
+
 /**
  * Spinner
  */
@@ -44,4 +48,9 @@ a, button, .btn {
 
 .pull-right {
   float: right;
+}
+
+.btn-xs {
+  // line-height: ensure proper height of button next to extra small input
+  @include button-size(0.2rem, 0.4rem, 0.8rem, 0.8rem, $border-radius);
 }

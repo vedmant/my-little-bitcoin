@@ -51,6 +51,15 @@ const store = {
       tx.outputs.find(o => o.address === address))
   },
 
+  getTransactionsForNextBlock () {
+    const unspent = this.getUnspent(false);
+    return this.mempool.filter(tx => {
+      try {
+        return checkTransaction(tx, unspent)
+      } catch (e) { if (! (e instanceof TransactionError)) throw e }
+    })
+  },
+
   getUnspent (withMempool = false) {
     const transactions = this.getTransactions(withMempool)
 
@@ -106,6 +115,10 @@ const store = {
       })
     }
     debug('Added transaction to mempool ', transaction)
+  },
+
+  addWallet (wallet) {
+    this.wallets.push(wallet)
   },
 
   cleanMempool (transactions) {

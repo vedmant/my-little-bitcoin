@@ -20,5 +20,5 @@ socket.on('mine-started', () => store.commit('MINE_START'))
 socket.on('mine-stopped', () => store.commit('MINE_STOP'))
 socket.on('recieved-funds', (data) => {
   store.commit('RECIEVED_FUNDS', data)
-  store.dispatch('addToastMessage', {text: `You just recieved ${data.amount} to wallet: ${data.name}!`, type: 'success'})
+  store.dispatch('addToastMessage', {text: `You just recieved ${data.amount} MLB on wallet: ${data.name}!`, type: 'success'})
 })

@@ -18,7 +18,82 @@ const state = {
   demoMode: false,
   block: {},
   address: {},
-  transaction: {transaction: {}, block: {}},
+  transaction: {transaction: {inputs: [], outputs: []}, block: {}},
+}
+
+const actions = {
+
+  getStatus ({commit}) {
+    commit('GET_STATUS')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/status')
+      commit('GET_STATUS_OK', resp.data)
+    })
+  },
+
+  startMine ({commit}) {
+    return co(function* () {
+      yield Axios.get('/v1/mine-start')
+    })
+  },
+
+  stopMine ({commit}) {
+    return co(function* () {
+      yield Axios.get('/v1/mine-stop')
+    })
+  },
+
+  sendFunds ({commit}, {from, to, amount}) {
+    return co(function* () {
+      yield Axios.get(`/v1/send/${from}/${to}/${amount}`)
+    })
+  },
+
+  getBlock ({commit}, index) {
+    commit('GET_BLOCK')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/block/' + index)
+      commit('GET_BLOCK_OK', resp.data.block)
+    })
+  },
+
+  getAddress ({commit}, address) {
+    commit('GET_ADDRESS')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/address/' + address)
+      commit('GET_ADDRESS_OK', resp.data)
+    })
+  },
+
+  getTransaction ({commit}, id) {
+    commit('GET_TRANSACTION')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/transaction/' + id)
+      commit('GET_TRANSACTION_OK', resp.data)
+    })
+  },
+
+  getWallets ({commit}) {
+    commit('GET_WALLETS')
+
+    return co(function* () {
+      const resp = yield Axios.get('/v1/wallets')
+      commit('GET_WALLETS_OK', resp.data)
+    })
+  },
+
+  createWallet ({commit}, name) {
+    commit('CREATE_WALLET')
+
+    return co(function* () {
+      const resp = yield Axios.post('/v1/wallet/create', {name})
+      commit('CREATE_WALLET_OK', resp.data)
+    })
+  },
 }
 
 const mutations = {
@@ -104,62 +179,23 @@ const mutations = {
     state.loading = false
     state.transaction = transaction
   },
-}
 
-const actions = {
-
-  getState ({commit}) {
-    commit('GET_STATUS')
-
-    return co(function* () {
-      const resp = yield Axios.get('/v1/status')
-      commit('GET_STATUS_OK', resp.data)
-    }).catch(e => commit('ERROR', e))
+  GET_WALLETS (state) {
+    state.loading = true
   },
 
-  startMine ({commit}) {
-    return co(function* () {
-      yield Axios.get('/v1/mine-start')
-    }).catch(e => commit('ERROR', e))
+  GET_WALLETS_OK (state, wallets) {
+    state.loading = false
+    state.wallets = wallets
   },
 
-  stopMine ({commit}) {
-    return co(function* () {
-      yield Axios.get('/v1/mine-stop')
-    }).catch(e => commit('ERROR', e))
+  CREATE_WALLET (state) {
+    state.loading = true
   },
 
-  sendFunds ({commit}, {from, to, amount}) {
-    return co(function* () {
-      yield Axios.get(`/v1/send/${from}/${to}/${amount}`)
-    }).catch(e => commit('ERROR', e))
-  },
-
-  getBlock ({commit}, index) {
-    commit('GET_BLOCK')
-
-    return co(function* () {
-      const resp = yield Axios.get('/v1/block/' + index)
-      commit('GET_BLOCK_OK', resp.data.block)
-    }).catch(e => commit('ERROR', e))
-  },
-
-  getAddress ({commit}, address) {
-    commit('GET_ADDRESS')
-
-    return co(function* () {
-      const resp = yield Axios.get('/v1/address/' + address)
-      commit('GET_ADDRESS_OK', resp.data)
-    }).catch(e => commit('ERROR', e))
-  },
-
-  getTransaction ({commit}, id) {
-    commit('GET_TRANSACTION')
-
-    return co(function* () {
-      const resp = yield Axios.get('/v1/transaction/' + id)
-      commit('GET_TRANSACTION_OK', resp.data)
-    }).catch(e => commit('ERROR', e))
+  CREATE_WALLET_OK (state, wallet) {
+    state.loading = false
+    state.wallets.push(wallet)
   },
 }
 
@@ -179,6 +215,7 @@ Axios.interceptors.response.use(function (response) {
   return response
 }, function (error) {
   store.dispatch('addToastMessage', {type: 'danger', text: error.response.data})
+  store.commit('ERROR', error)
   return Promise.reject(error)
 })
 

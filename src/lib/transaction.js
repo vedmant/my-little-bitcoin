@@ -74,6 +74,8 @@ function checkTransaction (transaction, unspent) {
     if (transaction.inputs.reduce((acc, input) => acc + input.amount, 0) !==
       transaction.outputs.reduce((acc, output) => acc + output.amount, 0)) { throw new TransactionError('Input and output amounts dont match') }
   }
+
+  return true
 }
 
 /**

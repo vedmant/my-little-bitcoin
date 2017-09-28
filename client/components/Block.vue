@@ -57,7 +57,7 @@
     </div>
 
     <h4 class="mt-5">Transactions</h4>
-    <transactions :transactions="block.transactions"></transactions>
+    <transactions :transactions="block.transactions ? block.transactions.slice().reverse() : []"></transactions>
 
   </div>
 </template>

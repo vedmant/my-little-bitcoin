@@ -13,7 +13,17 @@
             <tbody>
             <tr>
               <td>Block</td>
-              <td><router-link :to="'/block/' + transaction.block.index">{{ transaction.block.hash }}</router-link></td>
+              <td>
+                <router-link v-if="transaction.block" :to="'/block/' + transaction.block.index">{{ transaction.block.hash }}</router-link>
+                <strong v-else="">Unconfirmed</strong>
+              </td>
+            </tr>
+            <tr>
+              <td>Confirmations</td>
+              <td>
+                <strong v-if="transaction.block">{{  }}</strong>
+                <strong v-else="">Unconfirmed</strong>
+              </td>
             </tr>
             <tr>
               <td>Size</td>
@@ -55,6 +65,7 @@ export default {
   computed: {
     ...mapState({
       transaction: s => s.transaction,
+      lastBlock: s => s.chain[s.chain.length - 1]
     }),
   },
 

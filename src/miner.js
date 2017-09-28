@@ -15,7 +15,7 @@ function mine (wallet) {
 
   co(function* () {
     while (store.mining) {
-      const block = yield mineBlock(store.mempool, store.lastBlock(), store.difficulty, wallet.public)
+      const block = yield mineBlock(store.getTransactionsForNextBlock(), store.lastBlock(), store.difficulty, wallet.public)
       if (! block) {
         // Someone mined block first, started mining new one
         continue

@@ -28,7 +28,7 @@
             <tbody>
             <tr>
               <td>No. Transactions</td>
-              <td>{{ address.transactions ? address.transactions.length : '' }}</td>
+              <td>{{ address.totalTransactions }}</td>
             </tr>
             <tr>
               <td>Total Received</td>

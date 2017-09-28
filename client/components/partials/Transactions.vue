@@ -15,7 +15,7 @@
           </div>
           <strong v-if="! tx.inputs.length">No Inputs (Newly Generated Coins)</strong>
         </td>
-        <td v-html="icon('arrow-right')"></td>
+        <td v-html="icon('arrow-right')" class="vertical-middle"></td>
         <td>
           <div v-for="output in tx.outputs">
             <div class="pull-right">{{ output.amount }} MLB</div>

@@ -8,6 +8,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const expressWinston = require('express-winston')
 const winston = require('winston')
+const {generateKeyPair} = require('./lib/wallet')
 const {TransactionError, GeneralError} = require('./errors')
 
 const app = express()
@@ -42,15 +43,17 @@ bus.on('mine-stop', () => broadcast('mine-stopped'))
 bus.on('recieved-funds', (data) => broadcast('recieved-funds', data))
 
 /*
- * Parse JSON automatically
+ * Parse bodies
  */
-app.use(bodyParser.json())
+app.use(bodyParser.json()) // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 
 // Add winston logger
 app.use(expressWinston.logger({transports: [new winston.transports.File({
   filename: 'logs/express.log', json: false, maxsize: 1024 * 1024, maxFiles: 100, tailable: true,
 })]}))
 
+// Serve static files
 app.use('/', express.static(path.resolve(__dirname, '../dist')))
 
 /*
@@ -62,7 +65,7 @@ app.get('/v1/status', (req, res) => res.json({
   mempool: store.mempool.slice(Math.max(store.mempool.length - 5, 0)),
   wallets: store.wallets.map(w => ({name: w.name, public: w.public, balance: store.getBalanceForAddress(w.public)})),
   mining: store.mining,
-  demoMode: config.demoMode,
+  demoMode: !! config.demoMode,
 }))
 
 /*
@@ -86,22 +89,48 @@ app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b =>
  * Get address
  */
 app.get('/v1/address/:address', (req, res) => {
-  const transactions = store.getTransactionsForAddress(req.params.address)
-  return res.json({
-      balance: store.getBalanceForAddress(req.params.address),
-      transactions: transactions.slice(Math.max(transactions.length - 100, 0)),
-      totalRecieved: transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, o) => acc + (o.address === req.params.address ? o.amount : 0), 0), 0)
-    })
-  }
-)
+  const transactions = store.getTransactionsForAddress(req.params.address).reverse()
+  res.json({
+    balance: store.getBalanceForAddress(req.params.address),
+    transactions: transactions.slice(Math.max(transactions.length - 100, 0)), // Last 100 transactions
+    totalTransactions: transactions.length,
+    totalRecieved: transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, o) => acc + (o.address === req.params.address ? o.amount : 0), 0), 0),
+  })
+})
 
 /*
  * Get transaction by txid
  */
 app.get('/v1/transaction/:id', (req, res) => {
+  const transaction = store.getTransactions().find(tx => tx.id === req.params.id)
+  if (! transaction) return res.status(404).send('Cant find transaction');
   const block = store.chain.find(block => block.transactions.find(tx => tx.id === req.params.id))
-  if (! block) return res.status(404).send('Cant find transaction');
-  res.json({transaction: block.transactions.find(tx => tx.id === req.params.id), block: block})
+  res.json({transaction, block})
+})
+
+/*
+ * My Wallets
+ */
+app.get('/v1/wallets', (req, res) => res.json(store.wallets.map(wallet => {
+  const transactions = store.getTransactionsForAddress(wallet.public).reverse()
+  return {
+    name: wallet.name,
+    public: wallet.public,
+    balance: store.getBalanceForAddress(wallet.public),
+    totalTransactions: transactions.length,
+    transactions: transactions.slice(Math.max(transactions.length - 100, 0)),
+    totalRecieved: transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, o) => acc + (o.address === wallet.public ? o.amount : 0), 0), 0),
+    totalSent: transactions.reduce((acc, tx) => acc + tx.inputs.reduce((acc, i) => acc + (i.address === wallet.public ? i.amount : 0), 0), 0),
+  }
+})))
+
+/*
+ * Create new wallet
+ */
+app.post('/v1/wallet/create', (req, res) => {
+  const wallet = {name: req.body.name, ...generateKeyPair()}
+  store.addWallet(wallet)
+  res.json({name: wallet.name, public: wallet.public, balance: store.getBalanceForAddress(wallet.public)})
 })
 
 /*
