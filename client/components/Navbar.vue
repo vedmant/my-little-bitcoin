@@ -17,7 +17,7 @@
         <b-nav is-nav-bar class="ml-auto">
           <b-nav-item to="/" active-class="active" exact><a>Status</a></b-nav-item>
           <b-nav-item to="/wallets" active-class="active" exact><a>Wallets</a></b-nav-item>
-          <b-nav-item to="/charts" active-class="active" exact><a>Charts</a></b-nav-item>
+          <!--<b-nav-item to="/charts" active-class="active" exact><a>Charts</a></b-nav-item>-->
         </b-nav>
       </b-collapse>
     </div>
