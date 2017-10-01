@@ -1,6 +1,8 @@
-# my-little-bitcoin
+# My Little Bitcoin
 
 > Sample naive cryptocurrency implementation on JavaScript with UI and simple blockchain explorer
+
+[See Demo Here](http://my-little-bitcoin.vedmant.com/)
 
 ## Features
 
@@ -19,16 +21,25 @@
 
 - Add signature to outputs for transaction, validate signature
 - Implement peers blockhains conflict resolution, download only needed part of chain since split
-- Store unspent transactions in separate array to reduce CPU usage for larger chain
 - Add stats page with charts in UI, use separate chart module to cache chart data on server
-- Improve log messages
+- Automatic difficulty adjustment to match 1 minute block time
 
-## Backend setup
+### Installation ###
+
+```
+git clone https://github.com/vedmant/my-little-bitcoin.git # To clone repo
+cd my-little-bitcoin
+yarn # Install php dependencies
+npm run prod # Compile frontend resources
+
+npm run demo
+```
+
+And open it on: [http://localhost:3001/](http://localhost:3001/)
+
+## Full backend run commands
 
 ``` bash
-# install dependencies
-yarn
-
 # Start demo node
 npm run demo
 
@@ -42,12 +53,9 @@ npm run start2
 npm run start3
 ```
 
-## Frontend setup
+## Frontend development
 
 ``` bash
-# install dependencies
-yarn
-
 # serve with hot reload at localhost:8080
 npm run dev
 
@@ -56,14 +64,10 @@ npm run prod
 
 # build for production and view the bundle analyzer report
 npm run prod --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
  
+### License ###
+
+And of course:
+
+[MIT](LICENSE.md)

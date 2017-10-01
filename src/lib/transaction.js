@@ -189,8 +189,6 @@ function buildTransaction (wallet, toAddress, amount, unspent) {
 module.exports = {
   checkTransactions,
   checkTransaction,
-  createTransaction,
   createRewardTransaction,
-  createInput,
   buildTransaction,
 }
