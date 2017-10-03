@@ -21,7 +21,7 @@
             <tr>
               <td>Confirmations</td>
               <td>
-                <strong v-if="transaction.block">{{  }}</strong>
+                <strong v-if="transaction.block">{{ lastBlock.index - transaction.block.index + 1  }}</strong>
                 <strong v-else="">Unconfirmed</strong>
               </td>
             </tr>
