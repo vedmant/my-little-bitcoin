@@ -19,6 +19,7 @@
 
 ## TODO
 
+- Don't sent 0 MLB change output
 - Add signature to outputs for transaction, validate signature
 - Implement peers blockhains conflict resolution, download only needed part of chain since split
 - Add stats page with charts in UI, use separate chart module to cache chart data on server
