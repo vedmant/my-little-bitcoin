@@ -181,7 +181,9 @@ function buildTransaction (wallet, toAddress, amount, unspent) {
   // Send amount to destination address
   const outputs = [{index: 0, amount, address: toAddress}]
   // Send back change to my wallet
-  outputs.push({index: 1, amount: inputsAmount - amount, address: wallet.public})
+  if (inputsAmount - amount > 0) {
+    outputs.push({index: 1, amount: inputsAmount - amount, address: wallet.public})
+  }
 
   return createTransaction(inputs, outputs)
 }

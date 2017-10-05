@@ -6,7 +6,7 @@
 
 ## Features
 
-- Blocks mining with reward and simple POW 
+- Blocks mining with reward and simple POW
 - Create transactions and send amount to address using unspent outputs
 - Peer to peer connection, blockchain synchronization
 - Multiple wallets, add new wallet
@@ -19,7 +19,6 @@
 
 ## TODO
 
-- Don't sent 0 MLB change output
 - Add signature to outputs for transaction, validate signature
 - Implement peers blockhains conflict resolution, download only needed part of chain since split
 - Add stats page with charts in UI, use separate chart module to cache chart data on server
@@ -66,7 +65,7 @@ npm run prod
 # build for production and view the bundle analyzer report
 npm run prod --report
 ```
- 
+
 ### License ###
 
 And of course:
