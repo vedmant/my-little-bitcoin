@@ -32,10 +32,6 @@ function mine (wallet) {
   }).catch(e => console.error(e))
 }
 
-    /*
-     *
-     */
-
 /**
  * Mine a block in separate process
  *
