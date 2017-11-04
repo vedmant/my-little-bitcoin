@@ -26,36 +26,53 @@
 
 ### Installation ###
 
-```
+```bash
 git clone https://github.com/vedmant/my-little-bitcoin.git # To clone repo
 cd my-little-bitcoin
 yarn # Install php dependencies
-npm run prod # Compile frontend resources
+yarn prod # Compile frontend resources
 
-npm run demo
+yarn demo # Run in demo mode
 ```
 
 And open it on: [http://localhost:3001/](http://localhost:3001/)
 
-## Full backend run commands
+## Full list of backend run commands
 
-``` bash
+```bash
 # Start demo node
-npm run demo
+yarn demo
 
 # Start first node
-npm start
+yarn start
 
 # Start second node
-npm run start2
+yarn start2
 
 # Start third node
-npm run start3
+yarn start3
 ```
+
+## Run 3 nodes with Docker
+
+This will require installed Docker to your PC, run:
+
+```bash
+docker-compose up
+```
+
+It will build and run all needed containers and run application with exposed ports 3001, 3002, 3003.
+
+Then you can open 3 different nodes that will communicate between each other on:
+http://localhost:3001
+http://localhost:3002
+http://localhost:3003
+
+Start mining on one of the nodes to make network add new blocks, you can start mining on each node. Beware, it can consume a lot of CPU resources.
 
 ## Frontend development
 
-``` bash
+```bash
 # serve with hot reload at localhost:8080
 npm run dev
 

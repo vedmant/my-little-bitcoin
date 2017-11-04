@@ -1,0 +1,7 @@
+FROM node:8
+
+WORKDIR /app
+
+RUN yarn
+
+EXPOSE 3001 3002 3003

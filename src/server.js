@@ -153,6 +153,6 @@ app.get('/v1/mine-stop', (req, res) => {
   res.json('Ok')
 })
 
-http.listen(config.httpPort, 'localhost', () => debug('Listening http on port: ' + config.httpPort))
+http.listen(config.httpPort, config.httpHost, () => debug('Listening http on port: ' + config.httpPort))
 
 module.exports = app

@@ -1,0 +1,50 @@
+version: '3'
+services:
+
+  node1:
+    container_name: node1
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3001:3001"
+    environment:
+      - HTTP_HOST=0.0.0.0
+      - DEBUG=app*
+    command: /app/node_modules/.bin/nodemon src/index.js
+
+  node2:
+    container_name: node2
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3002:3001"
+    environment:
+      - PEERS=ws://node1:6001
+      - HTTP_HOST=0.0.0.0
+      - DEBUG=app*
+    links:
+      - node1
+    depends_on:
+      - node1
+    command: /app/node_modules/.bin/nodemon src/index.js
+
+  node3:
+    container_name: node3
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "3003:3001"
+    environment:
+      - PEERS=ws://node1:6001,ws://node2:6001
+      - HTTP_HOST=0.0.0.0
+      - DEBUG=app*
+    links:
+      - node1
+      - node2
+    depends_on:
+      - node1
+      - node2
+    command: /app/node_modules/.bin/nodemon src/index.js
