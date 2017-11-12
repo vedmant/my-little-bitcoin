@@ -1,30 +1,23 @@
 const expect = require('chai').expect
 const {generateKeyPair} = require('../../../src/lib/wallet')
-const {checkBlock, makeGenesisBlock, createBlock} = require('../../../src/lib/block')
+const {checkBlock, makeGenesisBlock, createBlock, calculateHash} = require('../../../src/lib/block')
 const {BlockError} = require('../../../src/errors')
 
 describe('block lib', () => {
 
-  const wallet = generateKeyPair()
   const genesisBlock = makeGenesisBlock()
-  const validBlock = createBlock([], genesisBlock, wallet.public)
+  let validBlock;
+  let invalidBlock;
+  let wallet;
 
-  it('it should check if block is valid', (done) => {
-    checkBlock(genesisBlock, validBlock, Number.MAX_SAFE_INTEGER, [])
-    done()
+  beforeEach(() => {
+    wallet = generateKeyPair()
+    validBlock = createBlock([], genesisBlock, wallet.public)
+    invalidBlock = createBlock([], genesisBlock, wallet.public)
   })
 
-  describe('block data validation', () => {
-    let invalidBlock;
-    beforeEach(() => {
-      invalidBlock = JSON.parse(JSON.stringify(validBlock))
-    })
 
-    function expectCheckBlockToThrow () {
-      expect(() => {
-        checkBlock(genesisBlock, invalidBlock, Number.MAX_SAFE_INTEGER, [])
-      }).to.throw(BlockError)
-    }
+  describe('block data validation', () => {
 
     it('should fail on invalid index', (done) => {
       invalidBlock.index = 'test';
@@ -62,5 +55,43 @@ describe('block lib', () => {
       done()
     })
   })
+
+  describe('block verification', () => {
+
+    it('it should fail on incorrect index', (done) => {
+      invalidBlock.index = 5
+      expectCheckBlockToThrow()
+      done()
+    })
+
+    it('it should fail on incorrect block prevHash', (done) => {
+      invalidBlock.prevHash = calculateHash(invalidBlock)
+      expectCheckBlockToThrow()
+      done()
+    })
+
+    it('it should fail on incorrect block hash', (done) => {
+      invalidBlock.nonce = 100
+      expectCheckBlockToThrow()
+      done()
+    })
+
+    it('it should fail on incorrect difficulty', (done) => {
+      expectCheckBlockToThrow(100)
+      done()
+    })
+
+  })
+
+
+  /* ========================================================================= *\
+   * Helpers
+  \* ========================================================================= */
+
+  function expectCheckBlockToThrow (difficulty = Number.MAX_SAFE_INTEGER) {
+    expect(() => {
+      checkBlock(genesisBlock, invalidBlock, difficulty, [])
+    }).to.throw(BlockError)
+  }
 
 })
