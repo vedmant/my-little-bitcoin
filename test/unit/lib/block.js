@@ -16,6 +16,10 @@ describe('block lib', () => {
     invalidBlock = createBlock([], genesisBlock, wallet.public)
   })
 
+  it('should create valid block', (done) => {
+    checkBlock(genesisBlock, validBlock, Number.MAX_SAFE_INTEGER, [])
+    done()
+  })
 
   describe('block data validation', () => {
 
@@ -58,25 +62,25 @@ describe('block lib', () => {
 
   describe('block verification', () => {
 
-    it('it should fail on incorrect index', (done) => {
+    it('should fail on incorrect index', (done) => {
       invalidBlock.index = 5
       expectCheckBlockToThrow()
       done()
     })
 
-    it('it should fail on incorrect block prevHash', (done) => {
+    it('should fail on incorrect block prevHash', (done) => {
       invalidBlock.prevHash = calculateHash(invalidBlock)
       expectCheckBlockToThrow()
       done()
     })
 
-    it('it should fail on incorrect block hash', (done) => {
+    it('should fail on incorrect block hash', (done) => {
       invalidBlock.nonce = 100
       expectCheckBlockToThrow()
       done()
     })
 
-    it('it should fail on incorrect difficulty', (done) => {
+    it('should fail on incorrect difficulty', (done) => {
       expectCheckBlockToThrow(100)
       done()
     })
