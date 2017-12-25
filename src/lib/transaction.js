@@ -66,13 +66,13 @@ function checkTransaction (transaction, unspent) {
   })
 
   if (transaction.reward) {
-    // For reward block check if mount is correct
-    if (transaction.outputs.length !== 1) throw new TransactionError('Reward transaction must have exctly one output')
+    // For reward transaction: check if reward output is correct
+    if (transaction.outputs.length !== 1) throw new TransactionError('Reward transaction must have exactly one output')
     if (transaction.outputs[0].amount !== miningReward) throw new TransactionError(`Mining reward must be exactly: ${miningReward}`)
   } else {
-    // For normalt transaction check if total output amount equals input amount
+    // For normal transaction: check if total output amount equals input amount
     if (transaction.inputs.reduce((acc, input) => acc + input.amount, 0) !==
-      transaction.outputs.reduce((acc, output) => acc + output.amount, 0)) { throw new TransactionError('Input and output amounts dont match') }
+      transaction.outputs.reduce((acc, output) => acc + output.amount, 0)) { throw new TransactionError('Input and output amounts do not match') }
   }
 
   return true
@@ -189,8 +189,10 @@ function buildTransaction (wallet, toAddress, amount, unspent) {
 }
 
 module.exports = {
+  isDataValid,
   checkTransactions,
   checkTransaction,
+  calculateHash,
   createRewardTransaction,
   buildTransaction,
 }
