@@ -64,6 +64,7 @@ yarn start3
 This will require installed Docker to your PC, run:
 
 ```bash
+mkdir logs
 docker-compose up
 ```
 
