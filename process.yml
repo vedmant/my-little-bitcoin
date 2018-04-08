@@ -4,6 +4,7 @@ apps:
     exec_mode: fork
     error_file: logs/app.log
     max_memory_restart: 50M
+    cron_restart: "0 0 */2 * *"
     env:
       DEMO: true
       NODE_ENV: production
