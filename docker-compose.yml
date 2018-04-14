@@ -11,6 +11,7 @@ services:
     environment:
       - HTTP_HOST=0.0.0.0
       - DEBUG=app*
+    tty: true
     command: /app/node_modules/.bin/nodemon src/index.js
 
   node2:
@@ -28,6 +29,7 @@ services:
       - node1
     depends_on:
       - node1
+    tty: true
     command: /app/node_modules/.bin/nodemon src/index.js
 
   node3:
@@ -47,4 +49,5 @@ services:
     depends_on:
       - node1
       - node2
+    tty: true
     command: /app/node_modules/.bin/nodemon src/index.js

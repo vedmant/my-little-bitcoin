@@ -69,7 +69,7 @@ function findBlockHash (block, difficulty) {
      * Create worker to find hash in separate process
      */
     const worker = new Worker(function () {
-      const util = require(require('path').resolve(__dirname, 'src/lib/block'))
+      const util = require(require('path').resolve(process.cwd(), 'src/lib/block'))
       const debug = require('debug')('app:miner')
       self.onmessage = (e) => {
         const {block, difficulty} = e.data

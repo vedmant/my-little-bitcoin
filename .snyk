@@ -13,6 +13,26 @@ ignore:
     - socket.io > socket.io-client > engine.io-client > parsejson:
         reason: None given
         expires: '2017-12-18T10:02:20.175Z'
+  'npm:hoek:20180212':
+    - boom > hoek:
+        reason: None given
+        expires: '2018-05-14T05:53:12.212Z'
+    - node-pre-gyp > request > hawk > hoek:
+        reason: None given
+        expires: '2018-05-14T05:53:12.212Z'
+    - node-pre-gyp > request > hawk > boom > hoek:
+        reason: None given
+        expires: '2018-05-14T05:53:12.213Z'
+    - node-pre-gyp > request > hawk > sntp > hoek:
+        reason: None given
+        expires: '2018-05-14T05:53:12.213Z'
+    - node-pre-gyp > request > hawk > cryptiles > boom > hoek:
+        reason: None given
+        expires: '2018-05-14T05:53:12.213Z'
+  'npm:sshpk:20180409':
+    - node-pre-gyp > request > http-signature > sshpk:
+        reason: None given
+        expires: '2018-05-14T05:53:12.213Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:debug:20170905':

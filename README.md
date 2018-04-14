@@ -21,16 +21,6 @@
 - Descriptive debug messages in develpment mode using debug package
 - Server requests logs with winston
 
-## TODO
-
-- Add unit tests
-- Add feature tests
-- Include new transactions in currently mined block
-- Add signature to outputs for transaction, validate signature
-- Implement peers blockhains conflict resolution, download only needed part of chain since split
-- Add stats page with charts in UI, use separate chart module to cache chart data on server
-- Automatic difficulty adjustment to match 1 minute block time
-
 ### Installation ###
 
 ```bash
@@ -65,7 +55,6 @@ yarn start3
 This will require installed Docker to your PC, run:
 
 ```bash
-mkdir logs
 docker-compose up
 ```
 
@@ -90,6 +79,16 @@ npm run prod
 # build for production and view the bundle analyzer report
 npm run prod --report
 ```
+
+## TODO
+
+- Add unit tests
+- Add feature tests
+- Include new transactions in currently mined block
+- Add signature to outputs for transaction, validate signature
+- Implement peers blockhains conflict resolution, download only needed part of chain since split
+- Add stats page with charts in UI, use separate chart module to cache chart data on server
+- Automatic difficulty adjustment to match 1 minute block time
 
 ### License ###
 
