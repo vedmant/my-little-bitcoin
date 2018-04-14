@@ -1,7 +1,5 @@
-FROM node:8
+FROM node:8-alpine
 
 WORKDIR /app
-
-RUN yarn
 
 EXPOSE 3001 3002 3003
