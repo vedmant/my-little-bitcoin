@@ -71,10 +71,8 @@ const store = {
       outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), [])
 
     // Figure out which outputs are unspent
-    const unspent = outputs.filter(output =>
-      typeof inputs.find(input => input.tx === output.tx && input.index === output.index && input.amount === output.amount) === 'undefined')
-
-    return unspent
+    return outputs.filter(output =>
+      typeof inputs.find(input => input.tx === output.tx && input.index === output.index && input.amount === output.amount && input.address === output.address) === 'undefined')
   },
 
   getUnspentForAddress (address) {
@@ -143,7 +141,7 @@ const store = {
 
   send (from, toAddress, amount) {
     const wallet = this.wallets.find(w => w.public === from)
-    if (! wallet) throw new GeneralError(`Wallet with addres ${from} not found`)
+    if (! wallet) throw new GeneralError(`Wallet with address ${from} not found`)
     if (amount <= 0) throw new GeneralError(`Amount should be positive`)
 
     try {

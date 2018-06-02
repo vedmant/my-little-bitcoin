@@ -6,21 +6,23 @@ const walletLib = require('./wallet')
 const {miningReward} = require('../config')
 
 const transactionSchema = Joi.object().keys({
-  id: Joi.string().hex().length(64),
-  time: Joi.number(),
-  hash: Joi.string().hex().length(64),
-  reward: Joi.boolean(),
+  id: Joi.string().hex().length(64), // Transaction unique id
+  time: Joi.number(), // Transaction timestamp
+  hash: Joi.string().hex().length(64), // Transaction hash
+  reward: Joi.boolean(), // Boolean to mark mining reward transaction
+  address: Joi.string(), // Transaction is limited to only one input address for simplicity
+  signature: Joi.string().base64(), // Whole transaction signature
   inputs: Joi.array().items(Joi.object().keys({
-    tx: Joi.string().hex().length(64),
-    index: Joi.number(),
-    amount: Joi.number(),
-    address: Joi.string(),
-    signature: Joi.string().base64(),
+    tx: Joi.string().hex().length(64), // Points to transaction of referenced output
+    index: Joi.number(), // Index of the output in the referenced transaction
+    amount: Joi.number(), // Amount of the referenced output
+    address: Joi.string(), // Address (public key) of the referenced output
+    signature: Joi.string().base64(), // Signature, signed by private key and can be verified by included public key
   })),
   outputs: Joi.array().items(Joi.object().keys({
-    index: Joi.number(),
-    amount: Joi.number(),
-    address: Joi.string(),
+    index: Joi.number(), // Output index in current transaction
+    amount: Joi.number(), // Amount of the output
+    address: Joi.string(), // Address (public key) of the wallet where to transfer funds
   })),
 })
 
@@ -54,6 +56,7 @@ function checkTransactions (transactions, unspent) {
 function checkTransaction (transaction, unspent) {
   if (! isDataValid(transaction)) throw new TransactionError('Transaction data is not valid')
   if (transaction.hash !== calculateHash(transaction)) throw new TransactionError('Invalid transaction hash')
+  if (! verifyTransactionSignature(transaction)) throw new TransactionError('Invalid transaction signature')
 
   // Verify each input signature
   transaction.inputs.forEach(function (input) {
@@ -62,7 +65,8 @@ function checkTransaction (transaction, unspent) {
 
   // Check if inputs are in unspent list
   transaction.inputs.forEach(function (input) {
-    if (! unspent.find(out => out.tx === input.tx && out.index === input.index)) { throw new TransactionError('Input has been already spent: ' + input.tx) }
+    if (! unspent.find(out => out.tx === input.tx && out.index === input.index && out.amount === input.amount && out.address === input.address))
+      throw new TransactionError('Input has been already spent: ' + input.tx)
   })
 
   if (transaction.reward) {
@@ -89,12 +93,22 @@ function verifyInputSignature (input) {
 }
 
 /**
+ * Verify transaction signature
+ *
+ * @param transaction
+ * @return {*}
+ */
+function verifyTransactionSignature (transaction) {
+  return walletLib.verifySignature(transaction.address, transaction.signature, transaction.hash)
+}
+
+/**
  * Calculate transaction hash
  *
  * @param transaction
  */
-function calculateHash ({id, type, inputs, outputs}) {
-  return CryptoJS.SHA256(JSON.stringify({id, type, inputs, outputs})).toString()
+function calculateHash ({id, time, address, reward, inputs, outputs}) {
+  return CryptoJS.SHA256(JSON.stringify({id, time, address, reward, inputs, outputs})).toString()
 }
 
 /**
@@ -107,14 +121,15 @@ function calculateInputHash ({tx, index, amount, address}) {
 }
 
 /**
- * Create transaction
+ * Create transaction from inputs and outputs
  *
+ * @param wallet
  * @param inputs
  * @param outputs
  * @param reward
- * @return {{id: string, reward: boolean, inputs: *, outputs: *, hash: string}}
+ * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
  */
-function createTransaction (inputs, outputs, reward = false) {
+function createTransaction (wallet, inputs, outputs, reward = false) {
   const tx = {
     id: crypto.randomBytes(32).toString('hex'),
     time: Math.floor(new Date().getTime() / 1000),
@@ -122,7 +137,9 @@ function createTransaction (inputs, outputs, reward = false) {
     inputs,
     outputs,
   }
+  tx.address = wallet.public
   tx.hash = calculateHash(tx)
+  tx.signature = walletLib.signHash(wallet.private, tx.hash)
 
   return tx
 }
@@ -130,11 +147,11 @@ function createTransaction (inputs, outputs, reward = false) {
 /**
  * Create reward transaction for block mining
  *
- * @param address
- * @return {{id: string, reward: boolean, inputs: *, outputs: *, hash: string}}
+ * @param wallet
+ * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
  */
-function createRewardTransaction (address) {
-  return createTransaction([], [{index: 0, amount: miningReward, address}], true)
+function createRewardTransaction (wallet) {
+  return createTransaction(wallet, [], [{index: 0, amount: miningReward, address: wallet.public}], true)
 }
 
 /**
@@ -144,7 +161,7 @@ function createRewardTransaction (address) {
  * @param index Based on transaction output index
  * @param amount
  * @param wallet
- * @return {{tx: *, index: *, amount: *, address: *}}
+ * @return {{tx: string, index: number, amount: number, address: string}}
  */
 function createInput (tx, index, amount, wallet) {
   const input = {
@@ -159,13 +176,13 @@ function createInput (tx, index, amount, wallet) {
 }
 
 /**
- * Build a transaction to send money
+ * Build a transaction for sending money
  *
  * @param wallet
  * @param toAddress
  * @param amount
  * @param unspent
- * @return {{id: string, reward: boolean, inputs: *, outputs: *, hash: string}}
+ * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
  */
 function buildTransaction (wallet, toAddress, amount, unspent) {
   let inputsAmount = 0
@@ -185,7 +202,7 @@ function buildTransaction (wallet, toAddress, amount, unspent) {
     outputs.push({index: 1, amount: inputsAmount - amount, address: wallet.public})
   }
 
-  return createTransaction(inputs, outputs)
+  return createTransaction(wallet, inputs, outputs)
 }
 
 module.exports = {

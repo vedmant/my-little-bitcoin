@@ -12,8 +12,8 @@ describe('block lib', () => {
 
   beforeEach(() => {
     wallet = generateKeyPair()
-    validBlock = createBlock([], genesisBlock, wallet.public)
-    invalidBlock = createBlock([], genesisBlock, wallet.public)
+    validBlock = createBlock([], genesisBlock, wallet)
+    invalidBlock = createBlock([], genesisBlock, wallet)
   })
 
   it('should create valid block', (done) => {

@@ -15,7 +15,7 @@ function mine (wallet) {
 
   co(function* () {
     while (store.mining) {
-      const block = yield mineBlock(store.getTransactionsForNextBlock(), store.lastBlock(), store.difficulty, wallet.public)
+      const block = yield mineBlock(store.getTransactionsForNextBlock(), store.lastBlock(), store.difficulty, wallet)
       if (! block) {
         // Someone mined block first, started mining new one
         continue
@@ -38,11 +38,11 @@ function mine (wallet) {
  * @param transactions Transactions list to add to the block
  * @param lastBlock Last block in the blockchain
  * @param difficulty Current difficulty
- * @param address Addres for reward transaction
+ * @param wallet Wallet for reward transaction
  * @return {*}
  */
-function mineBlock (transactions, lastBlock, difficulty, address) {
-  const block = createBlock(transactions, lastBlock, address)
+function mineBlock (transactions, lastBlock, difficulty, wallet) {
+  const block = createBlock(transactions, lastBlock, wallet)
   block.hash = calculateHash(block)
 
   debug(`Started mining block ${block.index}`)

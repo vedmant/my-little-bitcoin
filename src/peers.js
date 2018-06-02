@@ -72,7 +72,7 @@ function initMessageHandler (connection) {
 
       case 'new-transaction':
         try {
-          write(connection, store.addTransaction(message.transaction, false))
+          store.addTransaction(message.transaction, false)
         } catch (e) {
           write(connection, {type: 'error', message: e.message})
         }

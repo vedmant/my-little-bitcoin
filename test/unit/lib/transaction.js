@@ -14,7 +14,7 @@ describe('transaction lib', () => {
   const chain = [blockLib.makeGenesisBlock()];
 
   for (let i = 0; i < 2; i++) {
-    let block = blockLib.createBlock([], chain[chain.length - 1], wallet1.public)
+    let block = blockLib.createBlock([], chain[chain.length - 1], wallet1)
     block.hash = blockLib.calculateHash(block)
     chain.push(block)
   }
@@ -30,7 +30,7 @@ describe('transaction lib', () => {
 
   beforeEach(() => {
     tx = buildTransaction(wallet1, wallet2.public, 100, unspent)
-    rewardTx = createRewardTransaction(wallet1.public)
+    rewardTx = createRewardTransaction(wallet1)
   })
 
   describe('transaction data validation', () => {

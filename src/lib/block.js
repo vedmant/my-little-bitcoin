@@ -4,12 +4,12 @@ const Joi = require('joi')
 const {checkTransactions, createRewardTransaction} = require('./transaction')
 
 const blockSchema = Joi.object().keys({
-  index: Joi.number(),
-  prevHash: Joi.string().hex().length(64),
-  time: Joi.number(),
-  transactions: Joi.array(),
-  nonce: Joi.number(),
-  hash: Joi.string().hex().length(64),
+  index: Joi.number(), // Transaction index or height
+  prevHash: Joi.string().hex().length(64), // Hash of the previous block
+  time: Joi.number(), // Current block timestamp
+  transactions: Joi.array(), // List of transactions, included into the block
+  nonce: Joi.number(), // Nonce, required for proof of work protocol
+  hash: Joi.string().hex().length(64), // Current block hash
 })
 
 /**
@@ -72,12 +72,12 @@ function makeGenesisBlock () {
  *
  * @param transactions {array}
  * @param lastBlock {object}
- * @param address {string}
- * @return {{index: *, prevHash, time: number, transactions: *, nonce: number}}
+ * @param wallet {{private: string, public: string}}
+ * @return {{index: number, prevHash, time: number, transactions: Array, nonce: number}}
  */
-function createBlock (transactions, lastBlock, address) {
+function createBlock (transactions, lastBlock, wallet) {
   transactions = transactions.slice()
-  transactions.push(createRewardTransaction(address))
+  transactions.push(createRewardTransaction(wallet))
   const block = {
     index: lastBlock.index + 1,
     prevHash: lastBlock.hash,
