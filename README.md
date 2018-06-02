@@ -89,6 +89,7 @@ npm run prod --report
 - Implement peers blockhains conflict resolution, download only needed part of chain since split
 - Add stats page with charts in UI, use separate chart module to cache chart data on server
 - Automatic difficulty adjustment to match 1 minute block time
+- Integrate NeDB to store blockchain persistently
 
 ### License ###
 
