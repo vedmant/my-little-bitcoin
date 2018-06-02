@@ -95,11 +95,13 @@ const store = {
     return block
   },
 
-  addTransaction (transaction, emit = true) {
+  addTransaction (transaction, byPeer = false) {
     checkTransaction(transaction, this.getUnspent(true))
     // TODO: check if transaction or any intputs are not in mempool already
     this.mempool.push(transaction)
-    if (emit) bus.emit('transaction-added', transaction)
+
+    if (byPeer) bus.emit('transaction-added', transaction)
+    else bus.emit('transaction-added-by-me', transaction)
 
     // Notify about new transaction if one of our wallets recieved funds
     let myWallet = null
@@ -112,7 +114,7 @@ const store = {
         balance: this.getBalanceForAddress(myWallet.public),
       })
     }
-    debug('Added transaction to mempool ', transaction)
+    debug('Added transaction to mempool ', transaction.id)
   },
 
   addWallet (wallet) {
@@ -146,7 +148,6 @@ const store = {
 
     try {
       const transaction = buildTransaction(wallet, toAddress, parseInt(amount), this.getUnspentForAddress(wallet.public))
-      debug(transaction)
       this.addTransaction(transaction)
       bus.emit('balance-updated', {public: wallet.public, balance: this.getBalanceForAddress(wallet.public)})
       return 'Transaction added to pool: ' + transaction.id

@@ -36,6 +36,7 @@ function broadcast (type, data) {
  */
 bus.on('block-added', block => broadcast('block-added', block))
 bus.on('block-added-by-me', block => broadcast('block-added-by-me', block))
+bus.on('transaction-added-by-me', transaction => broadcast('transaction-added', transaction))
 bus.on('transaction-added', transaction => broadcast('transaction-added', transaction))
 bus.on('balance-updated', balance => broadcast('balance-updated', balance))
 bus.on('mine-start', () => broadcast('mine-started'))

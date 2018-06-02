@@ -20,7 +20,7 @@ const broadcast = (message) => {
  * Broadacast messages to all peers
  */
 bus.on('block-added-by-me', block => broadcast({type: 'new-block', block}))
-bus.on('transaction-added', transaction => broadcast({type: 'new-transaction', transaction}))
+bus.on('transaction-added-by-me', transaction => broadcast({type: 'new-transaction', transaction}))
 
 /**
  * Handle incoming messages
@@ -72,7 +72,7 @@ function initMessageHandler (connection) {
 
       case 'new-transaction':
         try {
-          store.addTransaction(message.transaction, false)
+          store.addTransaction(message.transaction, true)
         } catch (e) {
           write(connection, {type: 'error', message: e.message})
         }

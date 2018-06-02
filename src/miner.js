@@ -17,7 +17,7 @@ function mine (wallet) {
     while (store.mining) {
       const block = yield mineBlock(store.getTransactionsForNextBlock(), store.lastBlock(), store.difficulty, wallet)
       if (! block) {
-        // Someone mined block first, started mining new one
+        // Someone mined block first or new transaction was added, start mining new one
         continue
       }
       try {
@@ -99,14 +99,19 @@ function findBlockHash (block, difficulty) {
     }
     // Listeners for stopping mining
     const blockAddedListener = b => { if (b.index >= block.index) mineStop() }
-    const mineStopListener = b => mineStop
+    const mineStopListener = b => mineStop()
+
     const removeListeners = () => {
       bus.removeListener('block-added', blockAddedListener)
       bus.removeListener('mine-stop', mineStopListener)
+      bus.removeListener('transaction-added', mineStopListener)
+      bus.removeListener('transaction-added-by-me', mineStopListener)
     }
     // If other process found the same block faster, kill current one
     bus.once('block-added', blockAddedListener)
     bus.once('mine-stop', mineStopListener)
+    bus.once('transaction-added', mineStopListener)
+    bus.once('transaction-added-by-me', mineStopListener)
   })
 }
 
