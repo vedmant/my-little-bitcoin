@@ -4,7 +4,7 @@
 
 # My Little Bitcoin
 
-> A simple cryptocurrency implementation on JavaScript in just about 650 lines of code (without comments). It also includes WEB GUI written on Vue.js where you can send coins and explore blockchain.
+> A simple cryptocurrency implementation on JavaScript in just about 650 lines of code (without comments and client). It also includes WEB GUI written on Vue.js where you can send coins and explore blockchain.
 
 This implementation is pretty naive and suitable only for studing purpose. 
 
