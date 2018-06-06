@@ -9,6 +9,10 @@ const {generateKeyPair} = require('./lib/wallet')
 
 const store = {
 
+  /* ========================================================================= *\
+   * State
+  \* ========================================================================= */
+
   difficulty: config.demoMode ? 100000000 : 10000 * 1, // The less value the bigger difficulty
 
   chain: [makeGenesisBlock()],
@@ -26,9 +30,9 @@ const store = {
 
   mining: !! config.demoMode,
 
-  /*
+  /* ========================================================================= *\
    * Getters
-   */
+  \* ========================================================================= */
 
   lastBlock () {
     return this.chain[this.chain.length - 1]
@@ -52,7 +56,7 @@ const store = {
   },
 
   getTransactionsForNextBlock () {
-    const unspent = this.getUnspent(false);
+    const unspent = this.getUnspent(false)
     return this.mempool.filter(tx => {
       try {
         return checkTransaction(tx, unspent)
@@ -83,9 +87,9 @@ const store = {
     return this.getUnspentForAddress(address).reduce((acc, u) => acc + u.amount, 0)
   },
 
-  /*
+  /* ========================================================================= *\
    * Actions
-   */
+  \* ========================================================================= */
 
   addBlock (block) {
     checkBlock(this.lastBlock(), block, this.difficulty, this.getUnspent())
@@ -124,7 +128,7 @@ const store = {
   cleanMempool (transactions) {
     transactions.forEach(tx => {
       let index = this.mempool.findIndex(t => t.id === tx.id)
-      if (index !== - 1) this.mempool.splice(index, 1)
+      if (index !== -1) this.mempool.splice(index, 1)
     })
   },
 

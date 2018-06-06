@@ -104,7 +104,7 @@ app.get('/v1/address/:address', (req, res) => {
  */
 app.get('/v1/transaction/:id', (req, res) => {
   const transaction = store.getTransactions().find(tx => tx.id === req.params.id)
-  if (! transaction) return res.status(404).send('Cant find transaction');
+  if (! transaction) return res.status(404).send('Cant find transaction')
   const block = store.chain.find(block => block.transactions.find(tx => tx.id === req.params.id))
   res.json({transaction, block})
 })

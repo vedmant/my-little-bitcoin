@@ -43,5 +43,4 @@ function verifySignature (address, signature, hash) {
   return secp256k1.verify(Buffer.from(hash, 'hex'), Buffer.from(signature, 'base64'), bs58.decode(address))
 }
 
-
 module.exports = {generateKeyPair, signHash, verifySignature}

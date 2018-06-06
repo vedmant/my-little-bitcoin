@@ -8,10 +8,11 @@ const {miningReward} = require('../config')
 const transactionSchema = Joi.object().keys({
   id: Joi.string().hex().length(64), // Transaction unique id
   time: Joi.number(), // Transaction timestamp
-  hash: Joi.string().hex().length(64), // Transaction hash
   reward: Joi.boolean(), // Boolean to mark mining reward transaction
   address: Joi.string(), // Transaction is limited to only one input address for simplicity
-  signature: Joi.string().base64(), // Whole transaction signature
+  hash: Joi.string().hex().length(64), // Transaction hash
+  signature: Joi.string().base64(), // Transaction hash signature
+
   inputs: Joi.array().items(Joi.object().keys({
     tx: Joi.string().hex().length(64), // Points to transaction of referenced output
     index: Joi.number(), // Index of the output in the referenced transaction
@@ -19,6 +20,7 @@ const transactionSchema = Joi.object().keys({
     address: Joi.string(), // Address (public key) of the referenced output
     signature: Joi.string().base64(), // Signature, signed by private key and can be verified by included public key
   })),
+
   outputs: Joi.array().items(Joi.object().keys({
     index: Joi.number(), // Output index in current transaction
     amount: Joi.number(), // Amount of the output
@@ -58,6 +60,10 @@ function checkTransaction (transaction, unspent) {
   if (transaction.hash !== calculateHash(transaction)) throw new TransactionError('Invalid transaction hash')
   if (! verifyTransactionSignature(transaction)) throw new TransactionError('Invalid transaction signature')
 
+  // Verify that all transaction's inputs addresses match transaction address, this is to ensure
+  // that whole transaction is genuine and node did not replace any of transaction outputs
+  if (! transaction.inputs.every(i => i.address === transaction.address)) throw new TransactionError('Invalid transaction signature')
+
   // Verify each input signature
   transaction.inputs.forEach(function (input) {
     if (! verifyInputSignature(input)) throw new TransactionError('Invalid input signature')
@@ -65,8 +71,9 @@ function checkTransaction (transaction, unspent) {
 
   // Check if inputs are in unspent list
   transaction.inputs.forEach(function (input) {
-    if (! unspent.find(out => out.tx === input.tx && out.index === input.index && out.amount === input.amount && out.address === input.address))
+    if (! unspent.find(out => out.tx === input.tx && out.index === input.index && out.amount === input.amount && out.address === input.address)) {
       throw new TransactionError('Input has been already spent: ' + input.tx)
+    }
   })
 
   if (transaction.reward) {
@@ -75,8 +82,9 @@ function checkTransaction (transaction, unspent) {
     if (transaction.outputs[0].amount !== miningReward) throw new TransactionError(`Mining reward must be exactly: ${miningReward}`)
   } else {
     // For normal transaction: check if total output amount equals input amount
-    if (transaction.inputs.reduce((acc, input) => acc + input.amount, 0) !==
-      transaction.outputs.reduce((acc, output) => acc + output.amount, 0)) { throw new TransactionError('Input and output amounts do not match') }
+    if (transaction.inputs.reduce((acc, input) => acc + input.amount, 0) !== transaction.outputs.reduce((acc, output) => acc + output.amount, 0)) {
+      throw new TransactionError('Input and output amounts do not match')
+    }
   }
 
   return true
@@ -121,40 +129,6 @@ function calculateInputHash ({tx, index, amount, address}) {
 }
 
 /**
- * Create transaction from inputs and outputs
- *
- * @param wallet
- * @param inputs
- * @param outputs
- * @param reward
- * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
- */
-function createTransaction (wallet, inputs, outputs, reward = false) {
-  const tx = {
-    id: crypto.randomBytes(32).toString('hex'),
-    time: Math.floor(new Date().getTime() / 1000),
-    reward,
-    inputs,
-    outputs,
-  }
-  tx.address = wallet.public
-  tx.hash = calculateHash(tx)
-  tx.signature = walletLib.signHash(wallet.private, tx.hash)
-
-  return tx
-}
-
-/**
- * Create reward transaction for block mining
- *
- * @param wallet
- * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
- */
-function createRewardTransaction (wallet) {
-  return createTransaction(wallet, [], [{index: 0, amount: miningReward, address: wallet.public}], true)
-}
-
-/**
  * Create and sign input
  *
  * @param tx Based on transaction id
@@ -176,12 +150,46 @@ function createInput (tx, index, amount, wallet) {
 }
 
 /**
+ * Create transaction from inputs and outputs
+ *
+ * @param {{public: string, private: string}} wallet
+ * @param {Array} inputs
+ * @param {Array} outputs
+ * @param {boolean} reward
+ * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
+ */
+function createTransaction (wallet, inputs, outputs, reward = false) {
+  const tx = {
+    id: crypto.randomBytes(32).toString('hex'),
+    time: Math.floor(new Date().getTime() / 1000),
+    reward,
+    inputs,
+    outputs,
+  }
+  tx.address = wallet.public
+  tx.hash = calculateHash(tx)
+  tx.signature = walletLib.signHash(wallet.private, tx.hash)
+
+  return tx
+}
+
+/**
+ * Create reward transaction for block mining
+ *
+ * @param {{public: string, private: string}} wallet
+ * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
+ */
+function createRewardTransaction (wallet) {
+  return createTransaction(wallet, [], [{index: 0, amount: miningReward, address: wallet.public}], true)
+}
+
+/**
  * Build a transaction for sending money
  *
- * @param wallet
- * @param toAddress
- * @param amount
- * @param unspent
+ * @param {{public: string, private: string}} wallet
+ * @param {string} toAddress
+ * @param {Number} amount
+ * @param {Array} unspent
  * @return {{id: string, reward: boolean, inputs: Array, outputs: Array, hash: string}}
  */
 function buildTransaction (wallet, toAddress, amount, unspent) {
