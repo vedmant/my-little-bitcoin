@@ -6,7 +6,7 @@
 
 > A simple cryptocurrency implementation on JavaScript in just about 650 lines of code (without comments and client). It also includes WEB GUI written on Vue.js where you can send coins and explore blockchain.
 
-This implementation is pretty naive and suitable only for studing purpose. 
+This implementation is pretty naive and suitable only for studying purpose. 
 
 [See Demo Here](https://my-little-bitcoin.vedmant.com/)
 
@@ -83,7 +83,7 @@ yarn prod
 
 - Add unit tests
 - Add feature tests
-- 
+- Keep list of unspent transactions in a separate store array instead of filtering it on every request
 - Implement peers blockhains conflict resolution, download only needed part of chain since split
 - Add stats page with charts in UI, use separate chart module to cache chart data on server
 - Automatic difficulty adjustment to match 1 minute block time
