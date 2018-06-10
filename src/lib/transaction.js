@@ -62,7 +62,7 @@ function checkTransaction (transaction, unspent) {
 
   // Verify that all transaction's inputs addresses match transaction address, this is to ensure
   // that whole transaction is genuine and node did not replace any of transaction outputs
-  if (! transaction.inputs.every(i => i.address === transaction.address)) throw new TransactionError('Invalid transaction signature')
+  if (! transaction.inputs.every(i => i.address === transaction.address)) throw new TransactionError('Transaction and input addresses dont match')
 
   // Verify each input signature
   transaction.inputs.forEach(function (input) {

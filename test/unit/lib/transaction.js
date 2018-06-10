@@ -1,7 +1,9 @@
 const expect = require('chai').expect
 const crypto = require('crypto')
+const {miningReward} = require('../../../src/config')
 const {generateKeyPair} = require('../../../src/lib/wallet')
 const blockLib = require('../../../src/lib/block')
+const walletLib = require('../../../src/lib/wallet')
 const {isDataValid, checkTransactions, checkTransaction, calculateHash, createRewardTransaction, buildTransaction} = require('../../../src/lib/transaction')
 const {TransactionError} = require('../../../src/errors')
 
@@ -97,6 +99,21 @@ describe('transaction lib', () => {
 
   })
 
+  describe('block transactions list verification', () => {
+
+    it('should fail if has more than one reward transactoins', (done) => {
+      rewardTx2 = createRewardTransaction(wallet1)
+      const transactions = [tx, rewardTx, rewardTx2]
+
+      expect(() => {
+        checkTransactions(transactions, unspent)
+      }).to.throw(TransactionError, 'Transactions must have exactly one reward transaction')
+      done()
+    })
+
+  })
+
+
   describe('transaction verification', () => {
 
     it('should fail on invalid hash', (done) => {
@@ -105,31 +122,49 @@ describe('transaction lib', () => {
       done()
     })
 
+    it('should fail on invalid signature', (done) => {
+      tx.signature = crypto.randomBytes(64).toString('base64')
+      expectCheckTransactionToThrow(tx, 'Invalid transaction signature')
+      done()
+    })
+
+    it('should fail if some if inputs don\'t match transaction address', (done) => {
+      tx.address = wallet2.public
+      tx.hash = calculateHash(tx)
+      tx.signature = walletLib.signHash(wallet2.private, tx.hash)
+      expectCheckTransactionToThrow(tx, 'Transaction and input addresses dont match')
+      done()
+    })
+
     it('should fail on invalid input signature', (done) => {
       tx.inputs[0].signature = crypto.randomBytes(64).toString('base64')
       tx.hash = calculateHash(tx)
-      expectCheckTransactionToThrow(tx)
+      tx.signature = walletLib.signHash(wallet1.private, tx.hash)
+      expectCheckTransactionToThrow(tx, 'Invalid input signature')
       done()
     })
 
     it('should fail on invalid reward output amount', (done) => {
       rewardTx.outputs[0].amount = 200
       rewardTx.hash = calculateHash(rewardTx)
-      expectCheckTransactionToThrow(rewardTx)
+      rewardTx.signature = walletLib.signHash(wallet1.private, rewardTx.hash)
+      expectCheckTransactionToThrow(rewardTx, `Mining reward must be exactly: ${miningReward}`)
       done()
     })
 
     it('should fail on invalid reward outputs number', (done) => {
       rewardTx.outputs[1] = Object.assign({}, rewardTx.outputs[0])
       rewardTx.hash = calculateHash(rewardTx)
-      expectCheckTransactionToThrow(rewardTx)
+      rewardTx.signature = walletLib.signHash(wallet1.private, rewardTx.hash)
+      expectCheckTransactionToThrow(rewardTx, 'Reward transaction must have exactly one output')
       done()
     })
 
     it('should fail on not matching inputs and outputs amounts', (done) => {
       tx.outputs[0].amount = 200
       tx.hash = calculateHash(tx)
-      expectCheckTransactionToThrow(tx)
+      tx.signature = walletLib.signHash(wallet1.private, tx.hash)
+      expectCheckTransactionToThrow(tx, 'Input and output amounts do not match')
       done()
     })
 
@@ -140,10 +175,10 @@ describe('transaction lib', () => {
    * Helpers
   \* ========================================================================= */
 
-  function expectCheckTransactionToThrow (transaction) {
+  function expectCheckTransactionToThrow (transaction, message) {
     expect(() => {
       checkTransaction(transaction, unspent)
-    }).to.throw(TransactionError)
+    }).to.throw(TransactionError, message)
   }
 
 })

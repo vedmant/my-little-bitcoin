@@ -26,8 +26,8 @@ function generateKeyPair () {
 /**
  * Sign hex hash
  *
- * @param privateKey
- * @param hash
+ * @param {string} privateKey
+ * @param {string} hash
  * @return {string}
  */
 function signHash (privateKey, hash) {
@@ -37,6 +37,9 @@ function signHash (privateKey, hash) {
 /**
  * Verify hex hash signature
  *
+ * @param {string} address
+ * @param {string} signature
+ * @param {string} hash
  * @return {bool}
  */
 function verifySignature (address, signature, hash) {
