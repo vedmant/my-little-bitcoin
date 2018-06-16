@@ -1,7 +1,7 @@
 apps:
   - name: mlb
     script: src/index.js
-    node_args: --max_old_space_size=40
+    node_args: --max_old_space_size=20
     exec_mode: fork
     error_file: logs/app.log
     max_memory_restart: 70M
