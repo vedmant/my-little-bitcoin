@@ -90,10 +90,10 @@ app.get('/v1/block/:index', (req, res) => res.json({block: store.chain.find(b =>
  * Get address
  */
 app.get('/v1/address/:address', (req, res) => {
-  const transactions = store.getTransactionsForAddress(req.params.address).reverse()
+  const transactions = store.getTransactionsForAddress(req.params.address)
   res.json({
     balance: store.getBalanceForAddress(req.params.address),
-    transactions: transactions.slice(Math.max(transactions.length - 100, 0)), // Last 100 transactions
+    transactions: transactions.slice(-100).reverse(), // Last 100 transactions
     totalTransactions: transactions.length,
     totalRecieved: transactions.reduce((acc, tx) => acc + tx.outputs.reduce((acc, o) => acc + (o.address === req.params.address ? o.amount : 0), 0), 0),
   })
