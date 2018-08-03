@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.7.1
+version: v1.10.2
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:jquery:20170829':
@@ -33,6 +33,18 @@ ignore:
     - node-pre-gyp > request > http-signature > sshpk:
         reason: None given
         expires: '2018-05-14T05:53:12.213Z'
+  'npm:bootstrap:20180529':
+    - bootstrap-vue > bootstrap:
+        reason: None given
+        expires: '2018-09-02T15:07:24.139Z'
+  'npm:chownr:20180731':
+    - node-pre-gyp > tar > chownr:
+        reason: None given
+        expires: '2018-09-02T15:07:24.139Z'
+  'npm:open:20180512':
+    - snyk > open:
+        reason: None given
+        expires: '2018-09-02T15:07:24.139Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:debug:20170905':

@@ -38,10 +38,10 @@
     "socket.io": "2.0.3",
     "socket.io-client": "2.0.3",
     "tiny-worker": "^2.1.2",
-    "vue": "^2.5.15",
+    "vue": "2.5.17",
     "vue-loader": "^14.2.2",
     "vue-router": "^2.7.0",
-    "vue-template-compiler": "^2.5.15",
+    "vue-template-compiler": "^2.5.17",
     "vuex": "^2.5.0",
     "winston": "^2.3.1",
     "ws": "3.3.1"
