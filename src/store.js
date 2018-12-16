@@ -1,13 +1,11 @@
 const debug = require('debug')('app:store')
 const {TransactionError, GeneralError} = require('./errors')
-const bus = require('./bus')
-const config = require('./config')
 const {isChainValid} = require('./lib/chain')
 const {checkBlock, makeGenesisBlock} = require('./lib/block')
 const {checkTransaction, buildTransaction} = require('./lib/transaction')
 const {generateKeyPair} = require('./lib/wallet')
 
-const store = {
+module.exports = (config, bus) => ({
 
   /* ========================================================================= *\
    * State
@@ -161,6 +159,4 @@ const store = {
       throw new GeneralError(e.message)
     }
   },
-}
-
-module.exports = store
+})
