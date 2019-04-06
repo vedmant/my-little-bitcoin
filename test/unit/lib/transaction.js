@@ -1,16 +1,16 @@
-const expect = require('chai').expect
-const crypto = require('crypto')
-const {miningReward} = require('../../../src/config')
-const {generateKeyPair} = require('../../../src/lib/wallet')
-const blockLib = require('../../../src/lib/block')
-const walletLib = require('../../../src/lib/wallet')
-const {isDataValid, checkTransactions, checkTransaction, calculateHash, createRewardTransaction, buildTransaction} = require('../../../src/lib/transaction')
-const {TransactionError} = require('../../../src/errors')
+import {expect} from 'chai'
+import crypto from 'crypto'
+import {miningReward} from '../../../src/config'
+import {generateKeyPair} from '../../../src/lib/wallet'
+import blockLib from '../../../src/lib/block'
+import walletLib from '../../../src/lib/wallet'
+import {isDataValid, checkTransactions, checkTransaction, calculateHash, createRewardTransaction, buildTransaction} from '../../../src/lib/transaction'
+import {TransactionError} from '../../../src/errors'
 
 describe('transaction lib', () => {
 
-  const wallet1 = generateKeyPair();
-  const wallet2 = generateKeyPair();
+  const wallet1 = generateKeyPair()
+  const wallet2 = generateKeyPair()
 
   // Create simple chain with three blocks
   const chain = [blockLib.makeGenesisBlock()];
@@ -27,8 +27,8 @@ describe('transaction lib', () => {
     // Get all outputs from transactions and append tx id
     .reduce((outputs, tx) => outputs.concat(tx.outputs.map(o => Object.assign({}, o, {tx: tx.id}))), [])
 
-  let tx;
-  let rewardTx;
+  let tx
+  let rewardTx
 
   beforeEach(() => {
     tx = buildTransaction(wallet1, wallet2.public, 100, unspent)
@@ -102,7 +102,7 @@ describe('transaction lib', () => {
   describe('block transactions list verification', () => {
 
     it('should fail if has more than one reward transactoins', (done) => {
-      rewardTx2 = createRewardTransaction(wallet1)
+      const rewardTx2 = createRewardTransaction(wallet1)
       const transactions = [tx, rewardTx, rewardTx2]
 
       expect(() => {

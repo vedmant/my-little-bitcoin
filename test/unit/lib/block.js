@@ -1,7 +1,7 @@
-const expect = require('chai').expect
-const {generateKeyPair} = require('../../../src/lib/wallet')
-const {checkBlock, makeGenesisBlock, createBlock, calculateHash} = require('../../../src/lib/block')
-const {BlockError} = require('../../../src/errors')
+import {expect} from 'chai'
+import {generateKeyPair} from '../../../src/lib/wallet'
+import {checkBlock, makeGenesisBlock, createBlock, calculateHash} from '../../../src/lib/block'
+import {BlockError} from '../../../src/errors'
 
 describe('block lib', () => {
 

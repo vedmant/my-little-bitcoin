@@ -1,6 +1,6 @@
-const expect = require('chai').expect
-const CryptoJS = require('crypto-js')
-const {generateKeyPair, signHash, verifySignature} = require('../../../src/lib/wallet')
+import {expect} from 'chai'
+import CryptoJS from 'crypto-js'
+import {generateKeyPair, signHash, verifySignature} from '../../../src/lib/wallet'
 
 describe('wallet lib', () => {
 
