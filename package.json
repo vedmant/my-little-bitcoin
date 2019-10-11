@@ -19,7 +19,7 @@
   "author": "Vedmant",
   "license": "MIT",
   "dependencies": {
-    "@sentry/node": "5.4.3",
+    "@sentry/node": "5.7.0",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "bootstrap": "^4.3.1",
