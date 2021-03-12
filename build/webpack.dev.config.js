@@ -7,7 +7,7 @@ let merge = require('webpack-merge')
 let baseWpConfig = require('./webpack.base.config')
 
 baseWpConfig.entry.app.unshift('webpack-hot-middleware/client')
-baseWpConfig.entry.frontend.unshift('webpack-hot-middleware/client')
+// baseWpConfig.entry.frontend.unshift('webpack-hot-middleware/client')
 
 module.exports = merge(baseWpConfig, {
 	mode: 'none',
@@ -17,7 +17,7 @@ module.exports = merge(baseWpConfig, {
 		rules: [
 			{
 				test: /\.scss$/,
-				loaders: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
+				loaders: ['css-loader', 'sass-loader'],
 			},
 			{
 				test: /\.vue$/,

@@ -1,24 +1,22 @@
 <template>
-  <b-navbar toggleable="md" type="dark" variant="info">
+  <b-navbar toggleable="sm" type="dark" variant="info">
     <div class="container">
-      <b-nav-toggle target="nav_collapse"></b-nav-toggle>
+      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
       <b-navbar-brand to="/">My Little Bitcoin</b-navbar-brand>
 
-      <b-collapse is-nav id="nav_collapse">
-
-        <b-nav is-nav-bar>
+      <b-collapse id="nav_collapse" is-nav>
+        <b-navbar-nav>
           <li class="github-menu-item nav-item">
             <a class="nav-link github-button" href="https://github.com/vedmant/my-little-bitcoin" data-size="large" data-show-count="true" aria-label="Star vedmant/my-little-bitcoin on GitHub">Star</a>
           </li>
-        </b-nav>
+        </b-navbar-nav>
 
-        <!-- Right aligned nav items -->
-        <b-nav is-nav-bar class="ml-auto">
+        <b-navbar-nav class="ml-auto">
           <b-nav-item to="/" active-class="active" exact><a>Status</a></b-nav-item>
           <b-nav-item to="/wallets" active-class="active" exact><a>Wallets</a></b-nav-item>
           <!--<b-nav-item to="/charts" active-class="active" exact><a>Charts</a></b-nav-item>-->
-        </b-nav>
+        </b-navbar-nav>
       </b-collapse>
     </div>
   </b-navbar>

@@ -1,5 +1,6 @@
 @import "variables";
 @import "~bootstrap/scss/bootstrap";
+@import "~bootstrap-vue/dist/bootstrap-vue.css";
 
 .page {
   padding-top: 3rem;
@@ -13,9 +14,9 @@
   vertical-align: middle;
 }
 
-.github-menu-item > iframe {
-  margin-bottom: -3px;
-  @include media-breakpoint-down(sm) {
+.github-menu-item {
+  margin-bottom: -6px;
+  @include media-breakpoint-down(xs) {
     margin-top: 15px;
   }
 }
