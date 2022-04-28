@@ -1,12 +1,10 @@
-<p align="center">
-<a href="https://travis-ci.org/vedmant/my-little-bitcoin"><img src="https://travis-ci.org/vedmant/my-little-bitcoin.svg?branch=master" alt="Build Status"></a>
-</p>
+![actions workflow](https://github.com/vedmant/my-little-bitcoin/workflows/Test/badge.svg)
 
 # My Little Bitcoin
 
 > A simple cryptocurrency implementation on JavaScript in just about 650 lines of code (without comments and client). It also includes WEB GUI written on Vue.js where you can send coins and explore blockchain.
 
-This implementation is pretty naive and suitable only for studying purpose. 
+This implementation is pretty naive and suitable only for studying purpose.
 
 [See Demo Here](https://my-little-bitcoin.vedmant.com/)
 
