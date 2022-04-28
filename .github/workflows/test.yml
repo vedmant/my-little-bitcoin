@@ -1,0 +1,24 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: Yarn Install
+        run: yarn install # --check-files --frozen-lockfile --non-interactive
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Test
+        run: yarn test

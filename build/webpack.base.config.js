@@ -1,7 +1,4 @@
-'use strict'
-
 let path = require('path')
-let webpack = require('webpack')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
