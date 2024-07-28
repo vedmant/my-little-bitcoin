@@ -19,7 +19,7 @@
     "@sentry/node": "5.7.0",
     "axios": "^0.27.2",
     "body-parser": "^1.18.3",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^5.0.0",
     "bootstrap-vue": "^2.21.2",
     "bs58": "^4.0.1",
     "co": "^4.6.0",
