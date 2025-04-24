@@ -8,8 +8,8 @@
     "start2": "cross-env DEBUG=app* HTTP_PORT=3002 P2P_PORT=6002 PEERS=ws://localhost:6001 nodemon src/index.js",
     "start3": "cross-env DEBUG=app* HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6001,ws://localhost:6002 nodemon src/index.js",
     "demo": "cross-env DEMO=true DEBUG=app* nodemon src/index.js",
-    "dev": "webpack --progress --colors --config build/webpack.dev.config.js",
-    "prod": "webpack --progress --colors --config build/webpack.prod.config.js",
+    "dev": "NODE_OPTIONS=\"--openssl-legacy-provider\" webpack --progress --colors --config build/webpack.dev.config.js",
+    "prod": "NODE_OPTIONS=\"--openssl-legacy-provider\" webpack --progress --colors --config build/webpack.prod.config.js",
     "test": "./node_modules/.bin/mocha --recursive --require @babel/register",
     "lint": "eslint --fix --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
@@ -54,6 +54,7 @@
     "@babel/runtime": "^7.4.3",
     "autoprefixer": "^7.1.2",
     "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.0",
     "chai": "^4.2.0",
     "chai-http": "^3.0.0",
     "chalk": "^2.0.1",

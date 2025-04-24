@@ -4,7 +4,7 @@ apps:
     node_args: --max_old_space_size=20
     exec_mode: fork
     error_file: logs/app.log
-    max_memory_restart: 70M
+    max_memory_restart: 120M
     cron_restart: "0 0 */2 * *"
     env:
       DEMO: true
