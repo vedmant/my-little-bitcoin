@@ -16,7 +16,7 @@
   "author": "Vedmant",
   "license": "MIT",
   "dependencies": {
-    "@sentry/node": "5.7.0",
+    "@sentry/node": "7.75.0",
     "axios": "^0.27.2",
     "body-parser": "^1.18.3",
     "bootstrap": "^4.3.1",
@@ -26,7 +26,7 @@
     "crypto-js": "^3.1.9-1",
     "debug": "^4.1.0",
     "dotenv": "^8.0.0",
-    "express": "^4.16.4",
+    "express": "^4.21.1",
     "express-winston": "^3.0.1",
     "joi": "^14.3.0",
     "jquery": "^3.4.1",
